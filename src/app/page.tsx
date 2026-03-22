@@ -362,8 +362,9 @@ export default function Home() {
   return (
     <main className="relative h-screen w-screen overflow-hidden bg-black">
       <div className="absolute left-1/2 top-[58%] h-[max(46.136vw,100vh)] w-[max(100vw,216.744vh)] -translate-x-1/2 -translate-y-1/2 overflow-hidden bg-black lg:top-1/2">
-        <div className="absolute left-[26.82%] top-[calc(15.92%-4.5px)] z-0 w-[46.36%]">
-          <div className="relative h-[52.16vh] max-h-[52.16%] min-h-[180px] w-full overflow-hidden rounded-[2.5%] bg-black [aspect-ratio:46.36/52.16]">
+        <div className="relative h-full w-full [container-type:size]">
+          <div className="absolute left-[26.82%] top-[calc(15.92%-4.5px)] z-0 h-[52.16%] w-[46.36%]">
+            <div className="relative h-full w-full overflow-hidden rounded-[2.5%] bg-black">
             {hasStarted && mountedSlot && !isMobilePortrait ? (
               <>
                 <iframe
@@ -392,35 +393,17 @@ export default function Home() {
                 <div className="absolute inset-0 opacity-15 mix-blend-screen [background-image:linear-gradient(to_bottom,rgba(255,255,255,0.08)_0,rgba(255,255,255,0.02)_1px,transparent_1px,transparent_6px)] [background-size:100%_6px]" />
                 <div className="relative z-10 flex max-w-[80%] flex-col items-center gap-5 text-center text-[#d7d0bc]">
                   {isMobilePortrait ? (
-                    <div className="flex h-32 w-32 items-center justify-center rounded-full border border-[#d7d0bc]/45 bg-black/35 backdrop-blur-sm">
-                      <svg
-                        viewBox="0 0 160 160"
-                        className="h-24 w-24 overflow-visible text-[#d7d0bc]"
+                    <div className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-full border border-[#d7d0bc]/45 bg-black/35 backdrop-blur-sm">
+                      <video
+                        className="h-full w-full object-cover"
+                        src="/mobile-kickflip-loop.mp4"
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        preload="auto"
                         aria-hidden="true"
-                      >
-                        <g className="origin-center animate-[skater-float_1.95s_ease-in-out_infinite]">
-                          <ellipse cx="80" cy="132" rx="34" ry="4" fill="currentColor" opacity="0.16" />
-
-                          <g className="origin-[82px_96px] animate-[virial-board_1.95s_cubic-bezier(.55,.08,.45,.96)_infinite]">
-                            <path
-                              d="M52 104 C58 98, 102 98, 108 104 C110 106, 110 112, 108 114 C102 120, 58 120, 52 114 C50 112, 50 106, 52 104 Z"
-                              fill="currentColor"
-                            />
-                            <circle cx="61" cy="120" r="4" fill="currentColor" />
-                            <circle cx="99" cy="120" r="4" fill="currentColor" />
-                          </g>
-
-                          <g className="origin-[80px_88px] animate-[skater-pop_1.95s_cubic-bezier(.55,.08,.45,.96)_infinite]">
-                            <circle cx="78" cy="38" r="9" fill="currentColor" />
-                            <path d="M76 48 C73 58, 71 66, 74 76 C77 85, 82 90, 88 95" stroke="currentColor" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-                            <path d="M73 59 C62 64, 54 69, 47 78" stroke="currentColor" strokeWidth="6" strokeLinecap="round" fill="none" />
-                            <path d="M77 58 C89 61, 100 68, 107 78" stroke="currentColor" strokeWidth="6" strokeLinecap="round" fill="none" />
-                            <path d="M76 77 C68 89, 60 95, 50 101" stroke="currentColor" strokeWidth="7" strokeLinecap="round" fill="none" />
-                            <path d="M82 81 C92 88, 102 88, 112 84" stroke="currentColor" strokeWidth="7" strokeLinecap="round" fill="none" />
-                            <path d="M111 84 C117 82, 122 83, 127 87" stroke="currentColor" strokeWidth="6" strokeLinecap="round" fill="none" />
-                          </g>
-                        </g>
-                      </svg>
+                      />
                     </div>
                   ) : (
                     <div className="flex h-20 w-20 items-center justify-center rounded-full border border-[#d7d0bc]/45 bg-black/35 backdrop-blur-sm">
@@ -438,57 +421,58 @@ export default function Home() {
               </button>
             )}
 
-            {!playlist && (
-              <div className="absolute inset-0 z-20 flex items-center justify-center bg-black text-[11px] uppercase tracking-[0.32em] text-[#d7d0bc]">
-                TUNING CHANNEL...
-              </div>
-            )}
+              {!playlist && (
+                <div className="absolute inset-0 z-20 flex items-center justify-center bg-black text-[11px] uppercase tracking-[0.32em] text-[#d7d0bc]">
+                  TUNING CHANNEL...
+                </div>
+              )}
+            </div>
           </div>
 
-          {hasStarted && currentTitle && (
+          {!isMobilePortrait && (
+            <img
+              src="/skateshop-bg-4.png"
+              alt="Skateshop TV background"
+              className="pointer-events-none absolute inset-0 z-10 h-full w-full object-fill"
+            />
+          )}
+
+          {hasStarted && currentTitle && !isMobilePortrait && (
             <div
-              className="pointer-events-none absolute left-1/2 top-[calc(100%+52px)] z-20 w-max max-w-[78vw] -translate-x-1/2 text-center text-[#d7d0bc] drop-shadow-[0_2px_8px_rgba(0,0,0,0.85)] md:max-w-none"
+              className="pointer-events-none absolute left-1/2 top-[80.0%] z-20 -translate-x-1/2 text-center text-[#d7d0bc] drop-shadow-[0_2px_8px_rgba(0,0,0,0.85)]"
               style={{ fontFamily: 'ImpactLabelReversed, Arial Black, sans-serif' }}
             >
-              <div className="bg-black text-[clamp(0.5rem,2.4vw,1.08rem)] leading-none tracking-[0.06em] uppercase" style={{ padding: '0 1px' }}>
+              <div className="bg-black leading-none tracking-[0.06em] uppercase" style={{ padding: '0 1px', fontSize: '1.18cqw' }}>
                 {currentTitle}
               </div>
             </div>
           )}
+
+          {hasStarted && !isMobilePortrait && (
+            <button
+              type="button"
+              onClick={() => setMuted((value) => !value)}
+              className="absolute right-4 top-4 z-30 flex h-9 w-9 items-center justify-center rounded-full bg-black/55 text-[#d7d0bc] backdrop-blur-sm transition hover:bg-black/75 md:right-6 md:top-6"
+              aria-label={muted ? "Turn audio on" : "Mute audio"}
+              title={muted ? "Audio off" : "Audio on"}
+            >
+              {muted ? (
+                <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 fill-current">
+                  <path d="M16.5 12a4.5 4.5 0 0 0-2.2-3.86v2.34l2.17 2.17c.02-.21.03-.43.03-.65z" />
+                  <path d="M19 12c0 .88-.15 1.73-.42 2.52l1.51 1.51A8.9 8.9 0 0 0 21 12c0-2.82-1.23-5.35-3.18-7.09l-1.43 1.43A6.96 6.96 0 0 1 19 12z" />
+                  <path d="M3.27 2 2 3.27 6.73 8H3v8h4l5 4v-6.73l4.25 4.25c-.56.43-1.2.77-1.95 1v2.06a9.3 9.3 0 0 0 3.39-1.54L20.73 22 22 20.73 3.27 2z" />
+                  <path d="M12 4 9.91 6.09 12 8.18V4z" />
+                </svg>
+              ) : (
+                <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 fill-current">
+                  <path d="M3 10v4h4l5 4V6L7 10H3z" />
+                  <path d="M16.5 12a4.5 4.5 0 0 0-2.2-3.86v7.72A4.5 4.5 0 0 0 16.5 12z" />
+                  <path d="M14.3 3.23v2.06a7.5 7.5 0 0 1 0 13.42v2.06a9.5 9.5 0 0 0 0-17.54z" />
+                </svg>
+              )}
+            </button>
+          )}
         </div>
-
-        {!isMobilePortrait && (
-          <img
-            src="/skateshop-bg-4.png"
-            alt="Skateshop TV background"
-            className="pointer-events-none absolute inset-0 z-10 h-full w-full object-fill"
-          />
-        )}
-
-        {hasStarted && !isMobilePortrait && (
-          <button
-            type="button"
-            onClick={() => setMuted((value) => !value)}
-            className="absolute right-4 top-4 z-30 flex h-9 w-9 items-center justify-center rounded-full bg-black/55 text-[#d7d0bc] backdrop-blur-sm transition hover:bg-black/75 md:right-6 md:top-6"
-            aria-label={muted ? "Turn audio on" : "Mute audio"}
-            title={muted ? "Audio off" : "Audio on"}
-          >
-            {muted ? (
-              <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 fill-current">
-                <path d="M16.5 12a4.5 4.5 0 0 0-2.2-3.86v2.34l2.17 2.17c.02-.21.03-.43.03-.65z" />
-                <path d="M19 12c0 .88-.15 1.73-.42 2.52l1.51 1.51A8.9 8.9 0 0 0 21 12c0-2.82-1.23-5.35-3.18-7.09l-1.43 1.43A6.96 6.96 0 0 1 19 12z" />
-                <path d="M3.27 2 2 3.27 6.73 8H3v8h4l5 4v-6.73l4.25 4.25c-.56.43-1.2.77-1.95 1v2.06a9.3 9.3 0 0 0 3.39-1.54L20.73 22 22 20.73 3.27 2z" />
-                <path d="M12 4 9.91 6.09 12 8.18V4z" />
-              </svg>
-            ) : (
-              <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 fill-current">
-                <path d="M3 10v4h4l5 4V6L7 10H3z" />
-                <path d="M16.5 12a4.5 4.5 0 0 0-2.2-3.86v7.72A4.5 4.5 0 0 0 16.5 12z" />
-                <path d="M14.3 3.23v2.06a7.5 7.5 0 0 1 0 13.42v2.06a9.5 9.5 0 0 0 0-17.54z" />
-              </svg>
-            )}
-          </button>
-        )}
       </div>
     </main>
   );
