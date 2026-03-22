@@ -280,6 +280,8 @@ export default function Home() {
   useEffect(() => {
     let cancelled = false;
 
+    setPlaylist(ids.map((id) => ({ id, duration: FALLBACK_DURATION_SECONDS })));
+
     (async () => {
       const durations = await Promise.all(ids.map(async (id) => ({ id, duration: await fetchDurationSeconds(id) })));
       if (!cancelled) setPlaylist(durations);
