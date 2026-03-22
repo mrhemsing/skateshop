@@ -14,7 +14,7 @@
 @font-face {
   font-family: "ImpactLabelReversed";
   src: url("/fonts/ImpactLabelReversed.ttf") format("truetype");
-  font-display: swap;
+  font-display: block;
 }
 
 html,

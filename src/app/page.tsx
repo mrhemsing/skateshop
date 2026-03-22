@@ -453,6 +453,8 @@ export default function Home() {
     };
   }, [playlist, serverOffsetMs, isMobilePortrait]);
 
+  const renderSlot = mountedSlot;
+
   useEffect(() => {
     return () => {
       if (fadeTimerRef.current) window.clearTimeout(fadeTimerRef.current);
@@ -463,8 +465,6 @@ export default function Home() {
     if (isMobilePortrait) return;
     setBackgroundReady(false);
   }, [isMobilePortrait, playerNonce]);
-
-  const renderSlot = mountedSlot;
 
   const currentTitle = renderSlot ? VIDEO_TITLES[renderSlot.id] ?? "Unknown clip" : "";
 
