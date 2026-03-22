@@ -269,6 +269,7 @@ export default function Home() {
   const ids = useMemo(() => YOUTUBE_URLS.map((url) => extractYouTubeId(url)).filter((id): id is string => Boolean(id)), []);
   const [playlist, setPlaylist] = useState<ChannelItem[] | null>(null);
   const [nowMs, setNowMs] = useState(() => Date.now());
+  const [serverOffsetMs, setServerOffsetMs] = useState<number | null>(null);
   const [hasStarted, setHasStarted] = useState(false);
   const [showPoster, setShowPoster] = useState(true);
   const [mountedSlot, setMountedSlot] = useState<{ id: string; index: number; offsetSeconds: number } | null>(null);
@@ -290,14 +291,73 @@ export default function Home() {
   }, [ids]);
 
   useEffect(() => {
+    let cancelled = false;
+
+    const syncServerClock = async () => {
+      try {
+        const startedAt = Date.now();
+        const response = await fetch("/api/channel-time", { cache: "no-store" });
+        const endedAt = Date.now();
+        if (!response.ok) return;
+        const data = (await response.json()) as { nowMs?: number };
+        if (!data.nowMs || cancelled) return;
+
+        const estimatedServerNow = data.nowMs + Math.round((endedAt - startedAt) / 2);
+        setServerOffsetMs(estimatedServerNow - endedAt);
+        setNowMs(estimatedServerNow);
+      } catch {
+        // fall back to client clock
+      }
+    };
+
+    syncServerClock();
+    const interval = window.setInterval(syncServerClock, 30000);
+    window.addEventListener("focus", syncServerClock);
+    window.addEventListener("pageshow", syncServerClock);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+      window.removeEventListener("focus", syncServerClock);
+      window.removeEventListener("pageshow", syncServerClock);
+    };
+  }, []);
+
+  useEffect(() => {
     if (!playlist || !hasStarted) return;
 
-    const interval = window.setInterval(() => {
-      setNowMs(Date.now());
-    }, 1000);
+    const getChannelNow = () => Date.now() + (serverOffsetMs ?? 0);
 
-    return () => window.clearInterval(interval);
-  }, [playlist, hasStarted]);
+    const syncToLiveNow = () => {
+      const currentNow = getChannelNow();
+      const slot = getLiveSlot(playlist, currentNow);
+      setNowMs(currentNow);
+      setMountedSlot({
+        id: slot.item.id,
+        index: slot.index,
+        offsetSeconds: slot.offsetSeconds,
+      });
+    };
+
+    const interval = window.setInterval(syncToLiveNow, 1000);
+    window.addEventListener("focus", syncToLiveNow);
+    window.addEventListener("pageshow", syncToLiveNow);
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        syncToLiveNow();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener("focus", syncToLiveNow);
+      window.removeEventListener("pageshow", syncToLiveNow);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [playlist, hasStarted, serverOffsetMs]);
 
   const liveSlot = useMemo(() => {
     if (!playlist?.length) return null;
@@ -331,11 +391,14 @@ export default function Home() {
   const startChannel = () => {
     if (!playlist?.length || !liveSlot || isMobilePortrait) return;
 
-    setNowMs(Date.now());
+    const currentNow = Date.now() + (serverOffsetMs ?? 0);
+    const slot = getLiveSlot(playlist, currentNow);
+
+    setNowMs(currentNow);
     setMountedSlot({
-      id: liveSlot.item.id,
-      index: liveSlot.index,
-      offsetSeconds: liveSlot.offsetSeconds,
+      id: slot.item.id,
+      index: slot.index,
+      offsetSeconds: slot.offsetSeconds,
     });
     setHasStarted(true);
     setShowPoster(true);
@@ -381,13 +444,11 @@ export default function Home() {
             ) : null}
 
             {(isMobilePortrait || !hasStarted || showPoster) && (
-              <button
-                type="button"
-                onClick={startChannel}
+              <div
                 className={`absolute inset-0 z-10 flex h-full w-full items-center justify-center overflow-hidden bg-black transition-opacity duration-700 ${
                   hasStarted && !showPoster && !isMobilePortrait ? "pointer-events-none opacity-0" : "opacity-100"
                 }`}
-                aria-label={isMobilePortrait ? "Rotate phone to view" : "Play skate video"}
+                aria-label={isMobilePortrait ? "Rotate phone to view" : undefined}
               >
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.08),transparent_58%)]" />
                 <div className="absolute inset-0 opacity-15 mix-blend-screen [background-image:linear-gradient(to_bottom,rgba(255,255,255,0.08)_0,rgba(255,255,255,0.02)_1px,transparent_1px,transparent_6px)] [background-size:100%_6px]" />
@@ -405,11 +466,7 @@ export default function Home() {
                         aria-hidden="true"
                       />
                     </div>
-                  ) : (
-                    <div className="flex h-20 w-20 items-center justify-center rounded-full border border-[#d7d0bc]/45 bg-black/35 backdrop-blur-sm">
-                      <span className="ml-1 text-3xl leading-none">▶</span>
-                    </div>
-                  )}
+                  ) : null}
                   {isMobilePortrait ? (
                     <div className="text-[11px] uppercase tracking-[0.32em]">
                       KICKFLIP YOUR PHONE
@@ -418,7 +475,7 @@ export default function Home() {
                     </div>
                   ) : null}
                 </div>
-              </button>
+              </div>
             )}
 
               {!playlist && (
