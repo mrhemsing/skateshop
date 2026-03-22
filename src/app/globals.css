@@ -56,6 +56,11 @@ body {
   100% { transform: translate(0, 0) rotate(352deg) scale(1, 1); }
 }
 
+@keyframes tuning-dots {
+  0% { width: 0; }
+  100% { width: 1.8em; }
+}
+
 * {
   box-sizing: border-box;
 }

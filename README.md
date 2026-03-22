@@ -78,7 +78,7 @@ Current video list in channel order:
 ## Notes
 
 - Live app runs on **port 3002**.
-- Current background artwork: `public/skateshop-bg-4.png`
+- Current background artwork: `public/skate-shop-bg.webp`
 - Mobile portrait shows a rotate prompt with a looping kickflip clip.
 - The channel is designed to feel **always live** rather than like an on-demand player.
 - Audio is muted by default and can be toggled with the speaker button.

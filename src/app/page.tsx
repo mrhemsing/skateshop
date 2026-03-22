@@ -274,6 +274,9 @@ export default function Home() {
   const [showPoster, setShowPoster] = useState(true);
   const [mountedSlot, setMountedSlot] = useState<{ id: string; index: number; offsetSeconds: number } | null>(null);
   const [muted, setMuted] = useState(true);
+  const [playerNonce, setPlayerNonce] = useState(0);
+  const [playerReady, setPlayerReady] = useState(false);
+  const [backgroundReady, setBackgroundReady] = useState(false);
   const fadeTimerRef = useRef<number | null>(null);
   const isMobilePortrait = useMobileLandscapeGate();
 
@@ -334,14 +337,21 @@ export default function Home() {
       const currentNow = getChannelNow();
       const slot = getLiveSlot(playlist, currentNow);
       setNowMs(currentNow);
-      setMountedSlot({
-        id: slot.item.id,
-        index: slot.index,
-        offsetSeconds: slot.offsetSeconds,
+      setMountedSlot((current) => {
+        if (!current || current.index !== slot.index) {
+          return {
+            id: slot.item.id,
+            index: slot.index,
+            offsetSeconds: slot.offsetSeconds,
+          };
+        }
+        return current;
       });
     };
 
-    const interval = window.setInterval(syncToLiveNow, 1000);
+    const interval = window.setInterval(() => {
+      setNowMs(getChannelNow());
+    }, 1000);
     window.addEventListener("focus", syncToLiveNow);
     window.addEventListener("pageshow", syncToLiveNow);
 
@@ -402,11 +412,12 @@ export default function Home() {
       index: slot.index,
       offsetSeconds: slot.offsetSeconds,
     });
+    setPlayerReady(false);
+    setPlayerNonce((value) => value + 1);
     setHasStarted(true);
-    setShowPoster(true);
+    setShowPoster(false);
 
     if (fadeTimerRef.current) window.clearTimeout(fadeTimerRef.current);
-    fadeTimerRef.current = window.setTimeout(() => setShowPoster(false), 350);
   };
 
   useEffect(() => {
@@ -417,11 +428,17 @@ export default function Home() {
   }, [playlist, isMobilePortrait, hasStarted, serverOffsetMs]);
 
   useEffect(() => {
+    if (mountedSlot || !playlist?.length || isMobilePortrait) return;
+    startChannel();
+  }, [mountedSlot, playlist, isMobilePortrait, serverOffsetMs]);
+
+  useEffect(() => {
     if (!playlist?.length) return;
 
     const ensureLandscapePlayback = () => {
       const portrait = window.innerHeight > window.innerWidth && window.innerWidth < 900 && window.matchMedia("(pointer: coarse)").matches;
       if (portrait) return;
+      setPlayerNonce((value) => value + 1);
       startChannel();
     };
 
@@ -442,7 +459,14 @@ export default function Home() {
     };
   }, []);
 
-  const currentTitle = mountedSlot ? VIDEO_TITLES[mountedSlot.id] ?? "Unknown clip" : "";
+  useEffect(() => {
+    if (isMobilePortrait) return;
+    setBackgroundReady(false);
+  }, [isMobilePortrait, playerNonce]);
+
+  const renderSlot = mountedSlot;
+
+  const currentTitle = renderSlot ? VIDEO_TITLES[renderSlot.id] ?? "Unknown clip" : "";
 
   return (
     <main className="relative h-screen w-screen overflow-hidden bg-black">
@@ -450,26 +474,33 @@ export default function Home() {
         <div className="relative h-full w-full [container-type:size]">
           <div className="absolute left-[26.82%] top-[calc(15.92%-4.5px)] z-0 h-[52.16%] w-[46.36%]">
             <div className="relative h-full w-full overflow-hidden rounded-[2.5%] bg-black">
-            {hasStarted && mountedSlot && !isMobilePortrait ? (
+            {renderSlot && !isMobilePortrait ? (
               <>
                 <iframe
-                  key={`${mountedSlot.id}-${mountedSlot.index}-${muted ? "muted" : "audio"}`}
+                  key={`${renderSlot.id}-${renderSlot.index}-${playerNonce}`}
                   className="pointer-events-none h-full w-full scale-[1.12]"
-                  src={`https://www.youtube-nocookie.com/embed/${mountedSlot.id}?autoplay=1&mute=${muted ? 1 : 0}&controls=0&loop=1&playlist=${mountedSlot.id}&playsinline=1&rel=0&modestbranding=1&iv_load_policy=3&fs=0&disablekb=1&cc_load_policy=0&hl=en&color=white&start=${Math.max(0, mountedSlot.offsetSeconds)}`}
+                  src={`https://www.youtube.com/embed/${renderSlot.id}?autoplay=1&mute=${muted ? 1 : 0}&controls=0&loop=1&playlist=${renderSlot.id}&playsinline=1&rel=0&modestbranding=1&iv_load_policy=3&fs=0&disablekb=1&cc_load_policy=0&hl=en&color=white&start=${Math.max(0, renderSlot.offsetSeconds)}`}
                   title="Skateshop TV"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   referrerPolicy="strict-origin-when-cross-origin"
                   allowFullScreen
+                  onLoad={() => {
+                    if (fadeTimerRef.current) window.clearTimeout(fadeTimerRef.current);
+                    fadeTimerRef.current = window.setTimeout(() => {
+                      setPlayerReady(true);
+                      setShowPoster(false);
+                    }, 2500);
+                  }}
                 />
 
               </>
             ) : null}
 
-            {(isMobilePortrait || !hasStarted || showPoster) && (
+            {(isMobilePortrait || !renderSlot || !playerReady) && (
               <div
-                className={`absolute inset-0 z-10 flex h-full w-full items-center justify-center overflow-hidden bg-black transition-opacity duration-700 ${
-                  hasStarted && !showPoster && !isMobilePortrait ? "pointer-events-none opacity-0" : "opacity-100"
-                }`}
+                className={`absolute inset-0 z-20 flex h-full w-full items-center justify-center overflow-hidden bg-black transition-opacity ${
+                  isMobilePortrait ? "duration-150" : "duration-300"
+                } ${hasStarted && !showPoster && !isMobilePortrait ? "pointer-events-none opacity-0" : "opacity-100"}`}
                 aria-label={isMobilePortrait ? "Rotate phone to view" : undefined}
               >
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.08),transparent_58%)]" />
@@ -495,6 +526,10 @@ export default function Home() {
                       <br />
                       HORIZONTALLY TO VIEW
                     </div>
+                  ) : backgroundReady ? (
+                    <div className="text-[11px] uppercase tracking-[0.32em]">
+                      TUNING CHANNEL<span className="ml-[0.1em] inline-flex w-[1.8em] justify-start overflow-hidden text-left align-bottom"><span className="inline-block animate-[tuning-dots_1.2s_steps(4,end)_infinite]">...</span></span>
+                    </div>
                   ) : null}
                 </div>
               </div>
@@ -510,9 +545,10 @@ export default function Home() {
 
           {!isMobilePortrait && (
             <img
-              src="/skateshop-bg-4.png"
+              src="/skate-shop-bg.webp"
               alt="Skateshop TV background"
               className="pointer-events-none absolute inset-0 z-10 h-full w-full object-fill"
+              onLoad={() => setBackgroundReady(true)}
             />
           )}
 
