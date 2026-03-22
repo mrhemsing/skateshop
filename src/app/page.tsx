@@ -138,7 +138,7 @@ const VIDEO_TITLES: Record<string, string> = {
   hYz78yn4mZQ: "Transworld - The Reason (1999)",
   X7T2tNqx7o8: "Alien Workshop - Memory Screen",
   Xhuq9sSsvV4: "Zoo York Mixtape - The Original",
-  fYztgN3z2vg: "Foundation - Art Bars, Subtitles and Seagulls (2001)",
+  fYztgN3z2vg: "Foundation - Art Bars, Subtitles.. (2001)",
   S9KpaG2p_zI: 'Think - "Damage" (1996)',
   kPjzMDPJALE: 'Birdhouse - "The End" (1998)',
   qiLwrukM7M8: 'Chocolate - "Las Nueve Vidas De Paco" (1995)',
@@ -415,9 +415,13 @@ export default function Home() {
     setPlayerReady(false);
     setPlayerNonce((value) => value + 1);
     setHasStarted(true);
-    setShowPoster(false);
+    setShowPoster(true);
 
     if (fadeTimerRef.current) window.clearTimeout(fadeTimerRef.current);
+    fadeTimerRef.current = window.setTimeout(() => {
+      setShowPoster(false);
+      setPlayerReady(true);
+    }, 25000);
   };
 
   useEffect(() => {
@@ -503,35 +507,47 @@ export default function Home() {
                 } ${hasStarted && !showPoster && !isMobilePortrait ? "pointer-events-none opacity-0" : "opacity-100"}`}
                 aria-label={isMobilePortrait ? "Rotate phone to view" : undefined}
               >
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.08),transparent_58%)]" />
-                <div className="absolute inset-0 opacity-15 mix-blend-screen [background-image:linear-gradient(to_bottom,rgba(255,255,255,0.08)_0,rgba(255,255,255,0.02)_1px,transparent_1px,transparent_6px)] [background-size:100%_6px]" />
-                <div className="relative z-10 flex max-w-[80%] flex-col items-center gap-5 text-center text-[#d7d0bc]">
-                  {isMobilePortrait ? (
-                    <div className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-full border border-[#d7d0bc]/45 bg-black/35 backdrop-blur-sm">
-                      <video
-                        className="h-full w-full object-cover"
-                        src="/mobile-kickflip-loop.mp4"
-                        autoPlay
-                        loop
-                        muted
-                        playsInline
-                        preload="auto"
-                        aria-hidden="true"
-                      />
+                {isMobilePortrait ? (
+                  <>
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.08),transparent_58%)]" />
+                    <div className="absolute inset-0 opacity-15 mix-blend-screen [background-image:linear-gradient(to_bottom,rgba(255,255,255,0.08)_0,rgba(255,255,255,0.02)_1px,transparent_1px,transparent_6px)] [background-size:100%_6px]" />
+                    <div className="relative z-10 flex max-w-[80%] flex-col items-center gap-5 text-center text-[#d7d0bc]">
+                      <div className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-full border border-[#d7d0bc]/45 bg-black/35 backdrop-blur-sm">
+                        <video
+                          className="h-full w-full object-cover"
+                          src="/mobile-kickflip-loop.mp4"
+                          autoPlay
+                          loop
+                          muted
+                          playsInline
+                          preload="auto"
+                          aria-hidden="true"
+                        />
+                      </div>
+                      <div className="text-[11px] uppercase tracking-[0.32em]">
+                        KICKFLIP YOUR PHONE
+                        <br />
+                        HORIZONTALLY TO VIEW
+                      </div>
                     </div>
-                  ) : null}
-                  {isMobilePortrait ? (
-                    <div className="text-[11px] uppercase tracking-[0.32em]">
-                      KICKFLIP YOUR PHONE
-                      <br />
-                      HORIZONTALLY TO VIEW
+                  </>
+                ) : backgroundReady ? (
+                  <div className="relative z-10 flex h-full w-full items-center justify-center p-[6%]">
+                    <div className="relative aspect-[4/3] w-full max-w-[520px] overflow-hidden border border-black/70 bg-[#111] shadow-[0_8px_30px_rgba(0,0,0,0.55)]">
+                      <div className="absolute inset-0 opacity-90 [background:linear-gradient(to_right,#c9c9c9_0_14.285%,#caca00_14.285%_28.57%,#21c7cb_28.57%_42.855%,#00d100_42.855%_57.14%,#cb20c8_57.14%_71.425%,#d10000_71.425%_85.71%,#1a12cb_85.71%_100%)]" />
+                      <div className="absolute left-0 right-0 top-[66.5%] h-[8.5%] [background:linear-gradient(to_right,#1520d6_0_14.285%,#111_14.285%_28.57%,#cb20c8_28.57%_42.855%,#111_42.855%_57.14%,#21c7cb_57.14%_71.425%,#111_71.425%_85.71%,#c9c9c9_85.71%_100%)]" />
+                      <div className="absolute bottom-0 left-0 right-0 top-[75%] [background:linear-gradient(to_right,#0b2b63_0_18%,#f3f3f3_18%_36%,#3c0a74_36%_54%,#111_54%_72%,#1a1a1a_72%_84%,#101010_84%_100%)]" />
+                      <div className="absolute bottom-0 right-[7%] top-[75%] w-[18%] [background:linear-gradient(to_right,#0f0f0f_0_38%,#1d1d1d_38%_64%,#111_64%_100%)]" />
+                      <div className="absolute inset-0 opacity-[0.08] mix-blend-screen [background-image:linear-gradient(to_bottom,rgba(255,255,255,0.22)_0,rgba(255,255,255,0.08)_1px,transparent_1px,transparent_5px)] [background-size:100%_5px]" />
+                      <div className="absolute inset-0 animate-[standby-flicker_0.22s_steps(2,end)_infinite] opacity-[0.08] mix-blend-screen [background-image:linear-gradient(to_bottom,rgba(255,255,255,0.18)_0,rgba(255,255,255,0.04)_1px,transparent_1px,transparent_3px)] [background-size:100%_3px]" />
+                      <div className="absolute inset-x-0 top-[-12%] h-[28%] animate-[standby-roll_6s_linear_infinite] bg-[linear-gradient(to_bottom,rgba(255,255,255,0.0),rgba(255,255,255,0.12),rgba(255,255,255,0.0))] opacity-[0.12] mix-blend-screen" />
+                      <div className="absolute inset-0 opacity-[0.06] [background-image:radial-gradient(circle_at_center,rgba(255,255,255,0.6)_0,transparent_55%)]" />
+                      <div className="absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 bg-black px-5 py-2 text-center text-[clamp(0.78rem,1.35vw,1rem)] uppercase tracking-[0.18em] text-white shadow-[0_0_0_1px_rgba(255,255,255,0.06),0_10px_20px_rgba(0,0,0,0.45)]">
+                        PLEASE STAND BY
+                      </div>
                     </div>
-                  ) : backgroundReady ? (
-                    <div className="text-[11px] uppercase tracking-[0.32em]">
-                      TUNING CHANNEL<span className="ml-[0.1em] inline-flex w-[1.8em] justify-start overflow-hidden text-left align-bottom"><span className="inline-block animate-[tuning-dots_1.2s_steps(4,end)_infinite]">...</span></span>
-                    </div>
-                  ) : null}
-                </div>
+                  </div>
+                ) : null}
               </div>
             )}
 
@@ -552,7 +568,7 @@ export default function Home() {
             />
           )}
 
-          {hasStarted && currentTitle && !isMobilePortrait && (
+          {hasStarted && currentTitle && !isMobilePortrait && !showPoster && (
             <div
               className="pointer-events-none absolute left-1/2 top-[80.0%] z-20 -translate-x-1/2 text-center text-[#d7d0bc] drop-shadow-[0_2px_8px_rgba(0,0,0,0.85)]"
               style={{ fontFamily: 'ImpactLabelReversed, Arial Black, sans-serif' }}
