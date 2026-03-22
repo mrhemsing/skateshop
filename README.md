@@ -40,3 +40,5 @@ Current channel lineup (alphabetical for reference only — playback remains ran
 - Mobile portrait shows a rotate prompt before playback.
 - Audio is muted by default and can be toggled with the speaker button.
 - Channel playback is designed to feel shared/live rather than like an individual player.
+
+<!-- test push: 2026-03-22 09:28:33 -07:00 -->
