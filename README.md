@@ -1,36 +1,42 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Skateshop
 
-## Getting Started
+Skateshop is a Next.js video-channel project that plays a shared lineup of skate videos inside a TV artwork composition.
 
-First, run the development server:
+## Local run
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run build
+npm run start -- --port 3002
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open:
+- http://localhost:3002
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## NOW PLAYING
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Current channel lineup (alphabetical for reference only — playback remains randomized):
 
-## Learn More
+- **411 #17** (1996)
+- **411 #18** (1996)
+- **411 #19** (1996)
+- **411 #24** (1997)
+- **411 #29** (1998)
+- **411 VM: Europe** (1999)
+- **411vm - Issue 13** (1995)
+- **Girl - Mouse** (1996)
+- **Shorty's - Fulfill the Dream**
+- **Toy Machine - Welcome To Hell** (1996)
+- **Transworld - Anthology** (2000)
+- **Transworld - Uno** (1996)
+- **Underachievers: Eastern Exposure 3** (1996)
+- **World Industries / Blind / 101 – Trilogy** (1996)
+- **XYZ Presents Stars and Bars** (1995)
 
-To learn more about Next.js, take a look at the following resources:
+## Notes
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Live app currently runs on **port 3002**.
+- Current background artwork: `public/skateshop-bg-4.png`
+- Mobile portrait shows a rotate prompt before playback.
+- Audio is muted by default and can be toggled with the speaker button.
+- Channel playback is designed to feel shared/live rather than like an individual player.
