@@ -389,7 +389,7 @@ export default function Home() {
   }, [hasStarted, liveSlot]);
 
   const startChannel = () => {
-    if (!playlist?.length || !liveSlot || isMobilePortrait) return;
+    if (!playlist?.length || isMobilePortrait) return;
 
     const currentNow = Date.now() + (serverOffsetMs ?? 0);
     const slot = getLiveSlot(playlist, currentNow);
@@ -408,11 +408,31 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if (!playlist?.length || !liveSlot) return;
+    if (!playlist?.length) return;
     if (isMobilePortrait || hasStarted) return;
 
     startChannel();
-  }, [playlist, liveSlot, isMobilePortrait, hasStarted]);
+  }, [playlist, isMobilePortrait, hasStarted, serverOffsetMs]);
+
+  useEffect(() => {
+    if (!playlist?.length) return;
+
+    const ensureLandscapePlayback = () => {
+      const portrait = window.innerHeight > window.innerWidth && window.innerWidth < 900 && window.matchMedia("(pointer: coarse)").matches;
+      if (portrait) return;
+      startChannel();
+    };
+
+    window.addEventListener("orientationchange", ensureLandscapePlayback);
+    window.addEventListener("resize", ensureLandscapePlayback);
+    window.addEventListener("pageshow", ensureLandscapePlayback);
+
+    return () => {
+      window.removeEventListener("orientationchange", ensureLandscapePlayback);
+      window.removeEventListener("resize", ensureLandscapePlayback);
+      window.removeEventListener("pageshow", ensureLandscapePlayback);
+    };
+  }, [playlist, serverOffsetMs, isMobilePortrait]);
 
   useEffect(() => {
     return () => {
