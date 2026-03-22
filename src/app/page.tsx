@@ -502,9 +502,15 @@ export default function Home() {
 
             {(isMobilePortrait || !renderSlot || !playerReady) && (
               <div
-                className={`absolute inset-0 z-20 flex h-full w-full items-center justify-center overflow-hidden bg-black transition-opacity ${
-                  isMobilePortrait ? "duration-150" : "duration-300"
-                } ${hasStarted && !showPoster && !isMobilePortrait ? "pointer-events-none opacity-0" : "opacity-100"}`}
+                className={`absolute inset-0 z-20 flex h-full w-full items-center justify-center overflow-hidden bg-black ${
+                  isMobilePortrait
+                    ? "opacity-100"
+                    : hasStarted && !showPoster && !playerReady
+                      ? "opacity-100"
+                      : hasStarted && !showPoster
+                        ? "pointer-events-none opacity-0"
+                        : "opacity-100"
+                }`}
                 aria-label={isMobilePortrait ? "Rotate phone to view" : undefined}
               >
                 {isMobilePortrait ? (
@@ -531,7 +537,7 @@ export default function Home() {
                       </div>
                     </div>
                   </>
-                ) : backgroundReady ? (
+                ) : (
                   <div className="relative z-10 flex h-full w-full items-center justify-center p-[6%]">
                     <div className="relative aspect-[4/3] w-full max-w-[520px] overflow-hidden border border-black/70 bg-[#111] shadow-[0_8px_30px_rgba(0,0,0,0.55)]">
                       <div className="absolute inset-0 opacity-90 [background:linear-gradient(to_right,#c9c9c9_0_14.285%,#caca00_14.285%_28.57%,#21c7cb_28.57%_42.855%,#00d100_42.855%_57.14%,#cb20c8_57.14%_71.425%,#d10000_71.425%_85.71%,#1a12cb_85.71%_100%)]" />
@@ -547,7 +553,7 @@ export default function Home() {
                       </div>
                     </div>
                   </div>
-                ) : null}
+                )}
               </div>
             )}
 
