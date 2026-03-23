@@ -318,7 +318,8 @@ function useMobileLandscapeGate() {
     const narrowMedia = window.matchMedia("(max-width: 899px)");
 
     const check = () => {
-      setIsMobilePortrait(coarseMedia.matches && narrowMedia.matches && portraitMedia.matches);
+      const nextIsPortrait = coarseMedia.matches && narrowMedia.matches && portraitMedia.matches;
+      setIsMobilePortrait(nextIsPortrait);
     };
 
     check();
@@ -344,15 +345,12 @@ export default function Home() {
   const [nowMs, setNowMs] = useState(() => Date.now());
   const [serverOffsetMs, setServerOffsetMs] = useState<number | null>(null);
   const [hasStarted, setHasStarted] = useState(false);
-  const [showPoster, setShowPoster] = useState(true);
   const [mountedSlot, setMountedSlot] = useState<{ id: string; index: number; offsetSeconds: number } | null>(null);
   const [muted, setMuted] = useState(true);
   const [playerNonce, setPlayerNonce] = useState(0);
   const [playerReady, setPlayerReady] = useState(false);
   const [backgroundReady, setBackgroundReady] = useState(false);
-  const [showStandbyCard, setShowStandbyCard] = useState(false);
   const fadeTimerRef = useRef<number | null>(null);
-  const standbyCardTimerRef = useRef<number | null>(null);
   const playerMountRef = useRef<HTMLDivElement | null>(null);
   const playerRef = useRef<YouTubePlayer | null>(null);
   const isMobilePortrait = useMobileLandscapeGate();
@@ -492,13 +490,6 @@ export default function Home() {
     setPlayerReady(false);
     setPlayerNonce((value) => value + 1);
     setHasStarted(true);
-    setShowPoster(true);
-
-    if (fadeTimerRef.current) window.clearTimeout(fadeTimerRef.current);
-    fadeTimerRef.current = window.setTimeout(() => {
-      setShowPoster(false);
-      setPlayerReady(true);
-    }, 25000);
   };
 
   useEffect(() => {
@@ -539,7 +530,6 @@ export default function Home() {
   useEffect(() => {
     return () => {
       if (fadeTimerRef.current) window.clearTimeout(fadeTimerRef.current);
-      if (standbyCardTimerRef.current) window.clearTimeout(standbyCardTimerRef.current);
       playerRef.current?.destroy();
       playerRef.current = null;
     };
@@ -548,11 +538,6 @@ export default function Home() {
   useEffect(() => {
     if (isMobilePortrait) return;
     setBackgroundReady(false);
-    setShowStandbyCard(false);
-    if (standbyCardTimerRef.current) window.clearTimeout(standbyCardTimerRef.current);
-    standbyCardTimerRef.current = window.setTimeout(() => {
-      setShowStandbyCard(true);
-    }, 900);
   }, [isMobilePortrait, playerNonce]);
 
   useEffect(() => {
@@ -598,7 +583,6 @@ export default function Home() {
               if (fadeTimerRef.current) window.clearTimeout(fadeTimerRef.current);
               fadeTimerRef.current = window.setTimeout(() => {
                 setPlayerReady(true);
-                setShowPoster(false);
               }, 2500);
             }
           },
@@ -606,7 +590,6 @@ export default function Home() {
             if (fadeTimerRef.current) window.clearTimeout(fadeTimerRef.current);
             fadeTimerRef.current = window.setTimeout(() => {
               setPlayerReady(true);
-              setShowPoster(false);
             }, 2500);
           },
         },
@@ -633,10 +616,17 @@ export default function Home() {
   }, [muted]);
 
   const currentTitle = renderSlot ? VIDEO_TITLES[renderSlot.id] ?? "Unknown clip" : "";
+  const showLoadingShop = !isMobilePortrait && (!playlist || !hasStarted || !renderSlot);
+  const showTvStandby = !isMobilePortrait && !!renderSlot && !playerReady;
 
   return (
     <main className="relative h-screen w-screen overflow-hidden bg-black">
-      <div className="absolute left-1/2 top-[58%] h-[max(46.136vw,100vh)] w-[max(100vw,216.744vh)] -translate-x-1/2 -translate-y-1/2 overflow-hidden bg-black lg:top-1/2">
+      {showLoadingShop && !isMobilePortrait && (
+        <div className="absolute inset-0 z-40 flex items-center justify-center bg-black text-[11px] uppercase tracking-[0.32em] text-[#d7d0bc]">
+          LOADING SHOP<span className="ml-1 inline-flex w-[2.4em] justify-start" aria-hidden="true"><span className="animate-pulse [animation-duration:1.2s]">...</span></span>
+        </div>
+      )}
+      <div className={`absolute left-1/2 top-[58%] h-[max(46.136vw,100vh)] w-[max(100vw,216.744vh)] -translate-x-1/2 -translate-y-1/2 overflow-hidden bg-black transition-opacity duration-200 lg:top-1/2 ${showLoadingShop ? "opacity-0" : "opacity-100"}`}>
         <div className="relative h-full w-full [container-type:size]">
           <div className="absolute left-[26.82%] top-[calc(15.92%-4.5px)] z-0 h-[52.16%] w-[46.36%]">
             <div className="relative h-full w-full overflow-hidden rounded-[2.5%] bg-black">
@@ -646,12 +636,8 @@ export default function Home() {
                 </div>
               ) : null}
 
-              <div
-                className={`absolute inset-0 z-20 flex h-full w-full items-center justify-center overflow-hidden bg-black transition-opacity duration-150 ${
-                  isMobilePortrait ? "opacity-100" : "pointer-events-none opacity-0"
-                }`}
-                aria-label={isMobilePortrait ? "Rotate phone to view" : undefined}
-              >
+              {isMobilePortrait ? (
+                <div className="absolute inset-0 z-20 flex h-full w-full items-center justify-center overflow-hidden bg-black" aria-label="Rotate phone to view">
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.08),transparent_58%)]" />
                   <div className="absolute inset-0 opacity-15 mix-blend-screen [background-image:linear-gradient(to_bottom,rgba(255,255,255,0.08)_0,rgba(255,255,255,0.02)_1px,transparent_1px,transparent_6px)] [background-size:100%_6px]" />
                   <div className="relative z-10 flex max-w-[80%] flex-col items-center gap-5 text-center text-[#d7d0bc]">
@@ -672,15 +658,16 @@ export default function Home() {
                       </video>
                     </div>
                     <div className="text-[11px] uppercase tracking-[0.32em]">
-                      KICKFLIP YOUR PHONE
+                      KICKFLIP YOUR SCREEN
                       <br />
                       HORIZONTALLY TO VIEW
                     </div>
                   </div>
                 </div>
+              ) : null}
 
-              {!isMobilePortrait && !playerReady && showStandbyCard && (
-                <div className="absolute inset-0 z-20 flex h-full w-full items-center justify-center overflow-hidden bg-transparent pointer-events-none">
+              {showTvStandby && (
+                <div className="absolute inset-0 z-20 flex h-full w-full items-center justify-center overflow-hidden bg-black">
                   <div className="relative z-10 flex h-full w-full items-center justify-center p-[6%]">
                     <div className="relative aspect-[4/3] w-full max-w-[520px] overflow-hidden border border-black/70 bg-[#111] shadow-[0_8px_30px_rgba(0,0,0,0.55)]">
                       <div className="absolute inset-0 opacity-90 [background:linear-gradient(to_right,#c9c9c9_0_14.285%,#caca00_14.285%_28.57%,#21c7cb_28.57%_42.855%,#00d100_42.855%_57.14%,#cb20c8_57.14%_71.425%,#d10000_71.425%_85.71%,#1a12cb_85.71%_100%)]" />
@@ -698,12 +685,6 @@ export default function Home() {
                   </div>
                 </div>
               )}
-
-              {!playlist && (
-                <div className="absolute inset-0 z-20 flex items-center justify-center bg-black text-[11px] uppercase tracking-[0.32em] text-[#d7d0bc]">
-                  TUNING CHANNEL...
-                </div>
-              )}
             </div>
           </div>
 
@@ -711,12 +692,12 @@ export default function Home() {
             <img
               src="/skate-shop-bg.webp"
               alt="Skateshop TV background"
-              className={`pointer-events-none absolute inset-0 z-10 h-full w-full object-fill transition-opacity duration-200 ${backgroundReady ? "opacity-100" : "opacity-0"}`}
+              className="pointer-events-none absolute inset-0 z-10 h-full w-full object-fill"
               onLoad={() => setBackgroundReady(true)}
             />
           )}
 
-          {hasStarted && currentTitle && !isMobilePortrait && !showPoster && (
+          {hasStarted && currentTitle && !isMobilePortrait && playerReady && (
             <div
               className="pointer-events-none absolute left-1/2 top-[80.0%] z-20 -translate-x-1/2 text-center text-[#d7d0bc] drop-shadow-[0_2px_8px_rgba(0,0,0,0.85)]"
               style={{ fontFamily: "ImpactLabelReversed, Arial Black, sans-serif" }}
