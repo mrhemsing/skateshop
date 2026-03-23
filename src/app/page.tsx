@@ -654,14 +654,18 @@ export default function Home() {
                         <div className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-full border border-[#d7d0bc]/45 bg-black/35 backdrop-blur-sm">
                           <video
                             className="h-full w-full object-cover"
-                            src="/mobile-kickflip-loop.mp4"
                             autoPlay
                             loop
                             muted
                             playsInline
-                            preload="auto"
+                            preload="metadata"
+                            poster="/mobile-kickflip-poster.jpg"
                             aria-hidden="true"
-                          />
+                          >
+                            <source src="/mobile-kickflip-loop.webm" type="video/webm" />
+                            <source src="/mobile-kickflip-loop-optimized.mp4" type="video/mp4" />
+                            <source src="/mobile-kickflip-loop.mp4" type="video/mp4" />
+                          </video>
                         </div>
                         <div className="text-[11px] uppercase tracking-[0.32em]">
                           KICKFLIP YOUR PHONE
