@@ -2,20 +2,32 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
+type YouTubePlayer = {
+  destroy: () => void;
+  getDuration?: () => number;
+  mute?: () => void;
+  unMute?: () => void;
+  playVideo?: () => void;
+};
+
 declare global {
   interface Window {
     YT?: {
+      PlayerState?: {
+        PLAYING: number;
+      };
       Player: new (
         element: HTMLDivElement,
         options: {
           videoId: string;
           playerVars?: Record<string, string | number>;
           events?: {
-            onReady?: (event: { target: { getDuration: () => number } }) => void;
+            onReady?: (event: { target: YouTubePlayer }) => void;
             onError?: () => void;
+            onStateChange?: (event: { data: number }) => void;
           };
         },
-      ) => { destroy: () => void };
+      ) => YouTubePlayer;
     };
     onYouTubeIframeAPIReady?: () => void;
   }
@@ -64,7 +76,6 @@ const YOUTUBE_URLS = [
   "https://youtu.be/7-QFxCRO8cU?si=clAC8oJUrAVdOgdG",
   "https://youtu.be/MROEdKma7-0?si=bPkQUjvw7JAJnBC1",
   "https://youtu.be/M-A4aYRI4kg?si=ce-RYLzMvcYXXprF",
-  "https://youtu.be/FVbFxqfU4a8?si=tuZnow1cbrDIuGc1",
   "https://youtu.be/X5AORez3yb0?si=NJJdegHAh-PxNP1l",
   "https://youtu.be/GfSZXQ3YeRk?si=qmsl_EUSnmLeEcUu",
   "https://youtu.be/xtGBVFcveXA?si=KoAZk9u8CE_U9r7I",
@@ -73,14 +84,42 @@ const YOUTUBE_URLS = [
   "https://youtu.be/Vi8yQ2IDkdI?si=Z5ecrFteMSqu2yAk",
   "https://youtu.be/h1yL23W1L8M?si=00KmyyFHslYw2DCE",
   "https://youtu.be/CLaxmyL1sB0?si=CCFqLeTTci-4qOMs",
-  "https://youtu.be/hYz78yn4mZQ?si=faWygkpe1m0V3E8G",
+  "https://youtu.be/bGkAENsLH0I?si=-CR4Kz5t24A9HuUM",
   "https://youtu.be/X7T2tNqx7o8?si=_iRgOk6ccQ9RZJwv",
   "https://youtu.be/Xhuq9sSsvV4?si=C4K0165iKb1wZmub",
-  "https://youtu.be/fYztgN3z2vg?si=7A67NBynWx8Gr_L0",
   "https://youtu.be/S9KpaG2p_zI?si=9Cbvvwql3n3Vl438",
   "https://youtu.be/kPjzMDPJALE?si=6BzQQ_ll81kv-i0z",
   "https://youtu.be/qiLwrukM7M8?si=AcdX-cxhOO_Xgez3",
   "https://youtu.be/yxBQz7JJVUc?si=nywXdrwmmaHXeBtz",
+  "https://www.youtube.com/watch?v=k5wflKuJVkc",
+  "https://www.youtube.com/watch?v=8huJqGFK9aQ&list=PL4fJ-6gBWklgkjVQSJfIUdNSS6h7emHZw&index=52",
+  "https://www.youtube.com/watch?v=41Hk2wdho8Y&list=PL4fJ-6gBWklgkjVQSJfIUdNSS6h7emHZw&index=95",
+  "http://youtube.com/watch?v=-XtQdgwIQSQ&list=PL4fJ-6gBWklgkjVQSJfIUdNSS6h7emHZw&index=55",
+  "https://www.youtube.com/watch?v=cC9FKibVqIQ&list=PL4fJ-6gBWklgkjVQSJfIUdNSS6h7emHZw&index=51",
+  "https://www.youtube.com/watch?v=MH0FxqRh2Ms&list=PL4fJ-6gBWklgkjVQSJfIUdNSS6h7emHZw&index=32",
+  "https://www.youtube.com/watch?v=dbpNSfdVk_4&list=PL4fJ-6gBWklgkjVQSJfIUdNSS6h7emHZw&index=28",
+  "https://www.youtube.com/watch?v=0toU8zDlwOU",
+  "https://www.youtube.com/watch?v=V-eH7mU1sCs",
+  "https://www.youtube.com/watch?v=oBNPA96TCRY",
+  "https://www.youtube.com/watch?v=1J-LR16FQEU",
+  "https://www.youtube.com/watch?v=rMA1ZsMIkyk",
+  "https://www.youtube.com/watch?v=CplDvIFPBOM",
+  "https://www.youtube.com/watch?v=hcmy3LIw13E",
+  "https://www.youtube.com/watch?v=iZrPLX5RAtk",
+  "https://www.youtube.com/watch?v=NwF2R51ao2I",
+  "https://www.youtube.com/watch?v=85L5f85Ee5E",
+  "https://www.youtube.com/watch?v=EuzPP1BBQuY",
+  "https://www.youtube.com/watch?v=KmVYwoXHQkg",
+  "https://www.youtube.com/watch?v=w0aNyBcvI-4",
+  "https://www.youtube.com/watch?v=eegJR4xRnTY",
+  "https://www.youtube.com/watch?v=k4x4L9jA0p0",
+  "https://www.youtube.com/watch?v=_yHPBa33Lo0",
+  "https://www.youtube.com/watch?v=UY3FTqE6wwA",
+  "https://www.youtube.com/watch?v=I7ALfsE-5nA",
+  "https://www.youtube.com/watch?v=EoGG4bH1nbE",
+  "https://www.youtube.com/watch?v=R3vyj_i18Ow",
+  "https://www.youtube.com/watch?v=3ePb3EL8zm0",
+  "https://www.youtube.com/watch?v=qaqN6_KO8Q4",
 ];
 
 const FALLBACK_DURATION_SECONDS = 180;
@@ -121,28 +160,55 @@ const VIDEO_TITLES: Record<string, string> = {
   "WxSLkhBXwPw": "411VM - #34 (1999)",
   "sjWviUqwAdw": "411VM - #35 (1999)",
   "gkzjap-0KmQ": "411VM - #36 (1999)",
-  "4tx2Q9pNxPc": "Toy Machine - Welcome To Hell (1996)",
+  "4tx2Q9pNxPc": "Toy Machine – Welcome to Hell (1996)",
   A_6FADx3hfU: "411 VM: Europe (1999)",
-  "7-QFxCRO8cU": "XYZ Presents Stars and Bars (1995)",
-  "MROEdKma7-0": 'World Industries / Blind / 101 – Trilogy (1996)',
-  "M-A4aYRI4kg": "Transworld - Uno (1996)",
-  FVbFxqfU4a8: "Transworld - Anthology (2000)",
-  X5AORez3yb0: "Girl - Mouse (1996)",
+  "7-QFxCRO8cU": "XYZ – Stars and Bars (1995)",
+  "MROEdKma7-0": "World Industries / Blind / 101 – Trilogy (1996)",
+  "M-A4aYRI4kg": "Transworld – Uno (1996)",
+  X5AORez3yb0: "Girl – Mouse (1996)",
   GfSZXQ3YeRk: "Underachievers: Eastern Exposure 3 (1996)",
-  xtGBVFcveXA: "Shorty's - Fulfill the Dream",
-  xOtoSpsUv7k: 'TSA - "Life In The Fast Lane" (1997)',
-  PWvmtTSAFCE: "Blind - Video Days",
-  Vi8yQ2IDkdI: 'Plan B - "Questionable" (1992)',
-  h1yL23W1L8M: "Plan B - Virtual Reality",
-  CLaxmyL1sB0: "Zero - Thrill of It All",
-  hYz78yn4mZQ: "Transworld - The Reason (1999)",
-  X7T2tNqx7o8: "Alien Workshop - Memory Screen",
-  Xhuq9sSsvV4: "Zoo York Mixtape - The Original",
-  fYztgN3z2vg: "Foundation - Art Bars, Subtitles.. (2001)",
-  S9KpaG2p_zI: 'Think - "Damage" (1996)',
-  kPjzMDPJALE: 'Birdhouse - "The End" (1998)',
-  qiLwrukM7M8: 'Chocolate - "Las Nueve Vidas De Paco" (1995)',
-  yxBQz7JJVUc: 'FTC - "Penal Code 100A" (1996)',
+  xtGBVFcveXA: "Shorty's – Fulfill the Dream (1998)",
+  xOtoSpsUv7k: "TSA – Life in the Fast Lane (1997)",
+  PWvmtTSAFCE: "Blind – Video Days (1991)",
+  Vi8yQ2IDkdI: "Plan B – Questionable (1992)",
+  h1yL23W1L8M: "Plan B – Virtual Reality (1993)",
+  CLaxmyL1sB0: "Zero – Thrill of It All (1997)",
+  bGkAENsLH0I: "Transworld – The Reason (1999)",
+  X7T2tNqx7o8: "Alien Workshop – Memory Screen (1991)",
+  Xhuq9sSsvV4: "Zoo York – The Mixtape (1997)",
+  S9KpaG2p_zI: "Think – Damage (1996)",
+  kPjzMDPJALE: "Birdhouse – The End (1998)",
+  qiLwrukM7M8: "Chocolate – Las Nueve Vidas de Paco (1995)",
+  yxBQz7JJVUc: "FTC – Penal Code 100A (1996)",
+  k5wflKuJVkc: "New Deal – Promo Ninety Six (1996)",
+  "8huJqGFK9aQ": "New Deal – Whatever (1993)",
+  "41Hk2wdho8Y": "Planet Earth – Hiatus (1995)",
+  "-XtQdgwIQSQ": "Alien Workshop – Timecode (1997)",
+  cC9FKibVqIQ: "Plan B – Second Hand Smoke (1994)",
+  MH0FxqRh2Ms: "New Deal – Children of the Sun (1994)",
+  dbpNSfdVk_4: "Osiris – The Storm (1999)",
+  "0toU8zDlwOU": "Girl – Goldfish (1993)",
+  "V-eH7mU1sCs": "Stereo – Tincan Folklore (1996)",
+  oBNPA96TCRY: "Rodney Mullen vs. Daewon Song (1997)",
+  "1J-LR16FQEU": "Zero – Misled Youth (1999)",
+  rMA1ZsMIkyk: "H-Street – This Is Not the New H-Street Video (1991)",
+  CplDvIFPBOM: "Toy Machine – Jump Off a Building (1998)",
+  hcmy3LIw13E: "World Industries – 20 Shot Sequence (1995)",
+  iZrPLX5RAtk: "Blind – Tim & Henry's Pack of Lies (1992)",
+  NwF2R51ao2I: "Chocolate – The Chocolate Tour (1999)",
+  "85L5f85Ee5E": "Element – Fine Artists Vol. 1 (1994)",
+  EuzPP1BBQuY: "Birdhouse – Ravers (1993)",
+  KmVYwoXHQkg: "Birdhouse – Feasters (1992)",
+  "w0aNyBcvI-4": "101 – Falling Down (1993)",
+  eegJR4xRnTY: "Zoo York – Peep This (1999)",
+  k4x4L9jA0p0: "5boro – Fire It Up (1999)",
+  "_yHPBa33Lo0": "Eastern Exposure 2 – Dan Wolfe (1994)",
+  UY3FTqE6wwA: "FTC – Finally (1993)",
+  "I7ALfsE-5nA": "Antihero – Fucktards (1997)",
+  EoGG4bH1nbE: "Mad Circle – 5ive Flavors (1998)",
+  R3vyj_i18Ow: "Emerica – Yellow (1997)",
+  "3ePb3EL8zm0": "Consolidated – Kings of Promotion (1997)",
+  qaqN6_KO8Q4: "Think – Dedication (1998)",
 };
 
 function extractYouTubeId(url: string) {
@@ -163,13 +229,13 @@ function extractYouTubeId(url: string) {
   return null;
 }
 
-function loadYouTubeApi() {
-  return new Promise<void>((resolve) => {
-    if (window.YT?.Player) {
-      resolve();
-      return;
-    }
+let youtubeApiPromise: Promise<void> | null = null;
 
+function loadYouTubeApi() {
+  if (window.YT?.Player) return Promise.resolve();
+  if (youtubeApiPromise) return youtubeApiPromise;
+
+  youtubeApiPromise = new Promise<void>((resolve) => {
     const existing = document.querySelector('script[src="https://www.youtube.com/iframe_api"]');
     if (!existing) {
       const script = document.createElement("script");
@@ -183,6 +249,8 @@ function loadYouTubeApi() {
       resolve();
     };
   });
+
+  return youtubeApiPromise;
 }
 
 async function fetchDurationSeconds(videoId: string) {
@@ -201,7 +269,7 @@ async function fetchDurationSeconds(videoId: string) {
       resolve(value > 0 ? value : FALLBACK_DURATION_SECONDS);
     };
 
-    let player: { destroy: () => void } | undefined;
+    let player: YouTubePlayer | undefined;
 
     player = new window.YT!.Player(mount, {
       videoId,
@@ -212,7 +280,7 @@ async function fetchDurationSeconds(videoId: string) {
         playsinline: 1,
       },
       events: {
-        onReady: (event) => cleanup(Math.round(event.target.getDuration() || FALLBACK_DURATION_SECONDS)),
+        onReady: (event) => cleanup(Math.round(event.target.getDuration?.() || FALLBACK_DURATION_SECONDS)),
         onError: () => cleanup(FALLBACK_DURATION_SECONDS),
       },
     });
@@ -278,6 +346,8 @@ export default function Home() {
   const [playerReady, setPlayerReady] = useState(false);
   const [backgroundReady, setBackgroundReady] = useState(false);
   const fadeTimerRef = useRef<number | null>(null);
+  const playerMountRef = useRef<HTMLDivElement | null>(null);
+  const playerRef = useRef<YouTubePlayer | null>(null);
   const isMobilePortrait = useMobileLandscapeGate();
 
   useEffect(() => {
@@ -462,6 +532,8 @@ export default function Home() {
   useEffect(() => {
     return () => {
       if (fadeTimerRef.current) window.clearTimeout(fadeTimerRef.current);
+      playerRef.current?.destroy();
+      playerRef.current = null;
     };
   }, []);
 
@@ -469,6 +541,83 @@ export default function Home() {
     if (isMobilePortrait) return;
     setBackgroundReady(false);
   }, [isMobilePortrait, playerNonce]);
+
+  useEffect(() => {
+    if (!renderSlot || isMobilePortrait || !playerMountRef.current) return;
+
+    let cancelled = false;
+    const mountNode = playerMountRef.current;
+    mountNode.innerHTML = "";
+    setPlayerReady(false);
+
+    const mountPlayer = async () => {
+      await loadYouTubeApi();
+      if (cancelled || !window.YT?.Player) return;
+
+      const player = new window.YT.Player(mountNode, {
+        videoId: renderSlot.id,
+        playerVars: {
+          autoplay: 1,
+          controls: 0,
+          loop: 1,
+          playlist: renderSlot.id,
+          playsinline: 1,
+          rel: 0,
+          modestbranding: 1,
+          iv_load_policy: 3,
+          fs: 0,
+          disablekb: 1,
+          cc_load_policy: 0,
+          hl: "en",
+          color: "white",
+          start: Math.max(0, renderSlot.offsetSeconds),
+          enablejsapi: 1,
+          origin: window.location.origin,
+        },
+        events: {
+          onReady: (event) => {
+            if (muted) event.target.mute?.();
+            else event.target.unMute?.();
+            event.target.playVideo?.();
+          },
+          onStateChange: (event) => {
+            if (event.data === window.YT?.PlayerState?.PLAYING) {
+              if (fadeTimerRef.current) window.clearTimeout(fadeTimerRef.current);
+              fadeTimerRef.current = window.setTimeout(() => {
+                setPlayerReady(true);
+                setShowPoster(false);
+              }, 2500);
+            }
+          },
+          onError: () => {
+            if (fadeTimerRef.current) window.clearTimeout(fadeTimerRef.current);
+            fadeTimerRef.current = window.setTimeout(() => {
+              setPlayerReady(true);
+              setShowPoster(false);
+            }, 2500);
+          },
+        },
+      });
+
+      playerRef.current = player;
+    };
+
+    mountPlayer();
+
+    return () => {
+      cancelled = true;
+      playerRef.current?.destroy();
+      playerRef.current = null;
+      mountNode.innerHTML = "";
+    };
+  }, [renderSlot?.id, renderSlot?.index, playerNonce, isMobilePortrait]);
+
+  useEffect(() => {
+    const player = playerRef.current;
+    if (!player) return;
+    if (muted) player.mute?.();
+    else player.unMute?.();
+  }, [muted]);
 
   const currentTitle = renderSlot ? VIDEO_TITLES[renderSlot.id] ?? "Unknown clip" : "";
 
@@ -478,84 +627,68 @@ export default function Home() {
         <div className="relative h-full w-full [container-type:size]">
           <div className="absolute left-[26.82%] top-[calc(15.92%-4.5px)] z-0 h-[52.16%] w-[46.36%]">
             <div className="relative h-full w-full overflow-hidden rounded-[2.5%] bg-black">
-            {renderSlot && !isMobilePortrait ? (
-              <>
-                <iframe
-                  key={`${renderSlot.id}-${renderSlot.index}-${playerNonce}`}
-                  className="pointer-events-none h-full w-full scale-[1.12]"
-                  src={`https://www.youtube.com/embed/${renderSlot.id}?autoplay=1&mute=${muted ? 1 : 0}&controls=0&loop=1&playlist=${renderSlot.id}&playsinline=1&rel=0&modestbranding=1&iv_load_policy=3&fs=0&disablekb=1&cc_load_policy=0&hl=en&color=white&start=${Math.max(0, renderSlot.offsetSeconds)}`}
-                  title="Skateshop TV"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  referrerPolicy="strict-origin-when-cross-origin"
-                  allowFullScreen
-                  onLoad={() => {
-                    if (fadeTimerRef.current) window.clearTimeout(fadeTimerRef.current);
-                    fadeTimerRef.current = window.setTimeout(() => {
-                      setPlayerReady(true);
-                      setShowPoster(false);
-                    }, 2500);
-                  }}
-                />
+              {renderSlot && !isMobilePortrait ? (
+                <div className="h-full w-full overflow-hidden">
+                  <div ref={playerMountRef} className="h-full w-full scale-[1.12] origin-center" />
+                </div>
+              ) : null}
 
-              </>
-            ) : null}
-
-            {(isMobilePortrait || !renderSlot || !playerReady) && (
-              <div
-                className={`absolute inset-0 z-20 flex h-full w-full items-center justify-center overflow-hidden bg-black ${
-                  isMobilePortrait
-                    ? "opacity-100"
-                    : hasStarted && !showPoster && !playerReady
+              {(isMobilePortrait || !renderSlot || !playerReady) && (
+                <div
+                  className={`absolute inset-0 z-20 flex h-full w-full items-center justify-center overflow-hidden bg-black ${
+                    isMobilePortrait
                       ? "opacity-100"
-                      : hasStarted && !showPoster
-                        ? "pointer-events-none opacity-0"
-                        : "opacity-100"
-                }`}
-                aria-label={isMobilePortrait ? "Rotate phone to view" : undefined}
-              >
-                {isMobilePortrait ? (
-                  <>
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.08),transparent_58%)]" />
-                    <div className="absolute inset-0 opacity-15 mix-blend-screen [background-image:linear-gradient(to_bottom,rgba(255,255,255,0.08)_0,rgba(255,255,255,0.02)_1px,transparent_1px,transparent_6px)] [background-size:100%_6px]" />
-                    <div className="relative z-10 flex max-w-[80%] flex-col items-center gap-5 text-center text-[#d7d0bc]">
-                      <div className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-full border border-[#d7d0bc]/45 bg-black/35 backdrop-blur-sm">
-                        <video
-                          className="h-full w-full object-cover"
-                          src="/mobile-kickflip-loop.mp4"
-                          autoPlay
-                          loop
-                          muted
-                          playsInline
-                          preload="auto"
-                          aria-hidden="true"
-                        />
+                      : hasStarted && !showPoster && !playerReady
+                        ? "opacity-100"
+                        : hasStarted && !showPoster
+                          ? "pointer-events-none opacity-0"
+                          : "opacity-100"
+                  }`}
+                  aria-label={isMobilePortrait ? "Rotate phone to view" : undefined}
+                >
+                  {isMobilePortrait ? (
+                    <>
+                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.08),transparent_58%)]" />
+                      <div className="absolute inset-0 opacity-15 mix-blend-screen [background-image:linear-gradient(to_bottom,rgba(255,255,255,0.08)_0,rgba(255,255,255,0.02)_1px,transparent_1px,transparent_6px)] [background-size:100%_6px]" />
+                      <div className="relative z-10 flex max-w-[80%] flex-col items-center gap-5 text-center text-[#d7d0bc]">
+                        <div className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-full border border-[#d7d0bc]/45 bg-black/35 backdrop-blur-sm">
+                          <video
+                            className="h-full w-full object-cover"
+                            src="/mobile-kickflip-loop.mp4"
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                            preload="auto"
+                            aria-hidden="true"
+                          />
+                        </div>
+                        <div className="text-[11px] uppercase tracking-[0.32em]">
+                          KICKFLIP YOUR PHONE
+                          <br />
+                          HORIZONTALLY TO VIEW
+                        </div>
                       </div>
-                      <div className="text-[11px] uppercase tracking-[0.32em]">
-                        KICKFLIP YOUR PHONE
-                        <br />
-                        HORIZONTALLY TO VIEW
+                    </>
+                  ) : (
+                    <div className="relative z-10 flex h-full w-full items-center justify-center p-[6%]">
+                      <div className="relative aspect-[4/3] w-full max-w-[520px] overflow-hidden border border-black/70 bg-[#111] shadow-[0_8px_30px_rgba(0,0,0,0.55)]">
+                        <div className="absolute inset-0 opacity-90 [background:linear-gradient(to_right,#c9c9c9_0_14.285%,#caca00_14.285%_28.57%,#21c7cb_28.57%_42.855%,#00d100_42.855%_57.14%,#cb20c8_57.14%_71.425%,#d10000_71.425%_85.71%,#1a12cb_85.71%_100%)]" />
+                        <div className="absolute left-0 right-0 top-[66.5%] h-[8.5%] [background:linear-gradient(to_right,#1520d6_0_14.285%,#111_14.285%_28.57%,#cb20c8_28.57%_42.855%,#111_42.855%_57.14%,#21c7cb_57.14%_71.425%,#111_71.425%_85.71%,#c9c9c9_85.71%_100%)]" />
+                        <div className="absolute bottom-0 left-0 right-0 top-[75%] [background:linear-gradient(to_right,#0b2b63_0_18%,#f3f3f3_18%_36%,#3c0a74_36%_54%,#111_54%_72%,#1a1a1a_72%_84%,#101010_84%_100%)]" />
+                        <div className="absolute bottom-0 right-[7%] top-[75%] w-[18%] [background:linear-gradient(to_right,#0f0f0f_0_38%,#1d1d1d_38%_64%,#111_64%_100%)]" />
+                        <div className="absolute inset-0 opacity-[0.08] mix-blend-screen [background-image:linear-gradient(to_bottom,rgba(255,255,255,0.22)_0,rgba(255,255,255,0.08)_1px,transparent_1px,transparent_5px)] [background-size:100%_5px]" />
+                        <div className="absolute inset-0 animate-[standby-flicker_0.22s_steps(2,end)_infinite] opacity-[0.08] mix-blend-screen [background-image:linear-gradient(to_bottom,rgba(255,255,255,0.18)_0,rgba(255,255,255,0.04)_1px,transparent_1px,transparent_3px)] [background-size:100%_3px]" />
+                        <div className="absolute inset-x-0 top-[-12%] h-[28%] animate-[standby-roll_6s_linear_infinite] bg-[linear-gradient(to_bottom,rgba(255,255,255,0.0),rgba(255,255,255,0.12),rgba(255,255,255,0.0))] opacity-[0.12] mix-blend-screen" />
+                        <div className="absolute inset-0 opacity-[0.06] [background-image:radial-gradient(circle_at_center,rgba(255,255,255,0.6)_0,transparent_55%)]" />
+                        <div className="absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 bg-black px-5 py-2 text-center text-[clamp(0.78rem,1.35vw,1rem)] uppercase tracking-[0.18em] text-white shadow-[0_0_0_1px_rgba(255,255,255,0.06),0_10px_20px_rgba(0,0,0,0.45)]">
+                          PLEASE STAND BY
+                        </div>
                       </div>
                     </div>
-                  </>
-                ) : (
-                  <div className="relative z-10 flex h-full w-full items-center justify-center p-[6%]">
-                    <div className="relative aspect-[4/3] w-full max-w-[520px] overflow-hidden border border-black/70 bg-[#111] shadow-[0_8px_30px_rgba(0,0,0,0.55)]">
-                      <div className="absolute inset-0 opacity-90 [background:linear-gradient(to_right,#c9c9c9_0_14.285%,#caca00_14.285%_28.57%,#21c7cb_28.57%_42.855%,#00d100_42.855%_57.14%,#cb20c8_57.14%_71.425%,#d10000_71.425%_85.71%,#1a12cb_85.71%_100%)]" />
-                      <div className="absolute left-0 right-0 top-[66.5%] h-[8.5%] [background:linear-gradient(to_right,#1520d6_0_14.285%,#111_14.285%_28.57%,#cb20c8_28.57%_42.855%,#111_42.855%_57.14%,#21c7cb_57.14%_71.425%,#111_71.425%_85.71%,#c9c9c9_85.71%_100%)]" />
-                      <div className="absolute bottom-0 left-0 right-0 top-[75%] [background:linear-gradient(to_right,#0b2b63_0_18%,#f3f3f3_18%_36%,#3c0a74_36%_54%,#111_54%_72%,#1a1a1a_72%_84%,#101010_84%_100%)]" />
-                      <div className="absolute bottom-0 right-[7%] top-[75%] w-[18%] [background:linear-gradient(to_right,#0f0f0f_0_38%,#1d1d1d_38%_64%,#111_64%_100%)]" />
-                      <div className="absolute inset-0 opacity-[0.08] mix-blend-screen [background-image:linear-gradient(to_bottom,rgba(255,255,255,0.22)_0,rgba(255,255,255,0.08)_1px,transparent_1px,transparent_5px)] [background-size:100%_5px]" />
-                      <div className="absolute inset-0 animate-[standby-flicker_0.22s_steps(2,end)_infinite] opacity-[0.08] mix-blend-screen [background-image:linear-gradient(to_bottom,rgba(255,255,255,0.18)_0,rgba(255,255,255,0.04)_1px,transparent_1px,transparent_3px)] [background-size:100%_3px]" />
-                      <div className="absolute inset-x-0 top-[-12%] h-[28%] animate-[standby-roll_6s_linear_infinite] bg-[linear-gradient(to_bottom,rgba(255,255,255,0.0),rgba(255,255,255,0.12),rgba(255,255,255,0.0))] opacity-[0.12] mix-blend-screen" />
-                      <div className="absolute inset-0 opacity-[0.06] [background-image:radial-gradient(circle_at_center,rgba(255,255,255,0.6)_0,transparent_55%)]" />
-                      <div className="absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 bg-black px-5 py-2 text-center text-[clamp(0.78rem,1.35vw,1rem)] uppercase tracking-[0.18em] text-white shadow-[0_0_0_1px_rgba(255,255,255,0.06),0_10px_20px_rgba(0,0,0,0.45)]">
-                        PLEASE STAND BY
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
+                  )}
+                </div>
+              )}
 
               {!playlist && (
                 <div className="absolute inset-0 z-20 flex items-center justify-center bg-black text-[11px] uppercase tracking-[0.32em] text-[#d7d0bc]">
@@ -577,9 +710,9 @@ export default function Home() {
           {hasStarted && currentTitle && !isMobilePortrait && !showPoster && (
             <div
               className="pointer-events-none absolute left-1/2 top-[80.0%] z-20 -translate-x-1/2 text-center text-[#d7d0bc] drop-shadow-[0_2px_8px_rgba(0,0,0,0.85)]"
-              style={{ fontFamily: 'ImpactLabelReversed, Arial Black, sans-serif' }}
+              style={{ fontFamily: "ImpactLabelReversed, Arial Black, sans-serif" }}
             >
-              <div className="bg-black leading-none tracking-[0.06em] uppercase" style={{ padding: '0 1px', fontSize: '1.18cqw' }}>
+              <div className="bg-black leading-none tracking-[0.06em] uppercase" style={{ padding: "0 1px", fontSize: "1.18cqw" }}>
                 {currentTitle}
               </div>
             </div>
