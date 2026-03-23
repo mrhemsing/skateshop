@@ -313,19 +313,24 @@ function useMobileLandscapeGate() {
   const [isMobilePortrait, setIsMobilePortrait] = useState(false);
 
   useEffect(() => {
+    const coarseMedia = window.matchMedia("(pointer: coarse)");
+    const portraitMedia = window.matchMedia("(orientation: portrait)");
+    const narrowMedia = window.matchMedia("(max-width: 899px)");
+
     const check = () => {
-      const coarse = window.matchMedia("(pointer: coarse)").matches;
-      const narrow = window.innerWidth < 900;
-      const portrait = window.innerHeight > window.innerWidth;
-      setIsMobilePortrait(coarse && narrow && portrait);
+      setIsMobilePortrait(coarseMedia.matches && narrowMedia.matches && portraitMedia.matches);
     };
 
     check();
-    window.addEventListener("resize", check);
+    coarseMedia.addEventListener?.("change", check);
+    portraitMedia.addEventListener?.("change", check);
+    narrowMedia.addEventListener?.("change", check);
     window.addEventListener("orientationchange", check);
 
     return () => {
-      window.removeEventListener("resize", check);
+      coarseMedia.removeEventListener?.("change", check);
+      portraitMedia.removeEventListener?.("change", check);
+      narrowMedia.removeEventListener?.("change", check);
       window.removeEventListener("orientationchange", check);
     };
   }, []);
@@ -345,7 +350,9 @@ export default function Home() {
   const [playerNonce, setPlayerNonce] = useState(0);
   const [playerReady, setPlayerReady] = useState(false);
   const [backgroundReady, setBackgroundReady] = useState(false);
+  const [showStandbyCard, setShowStandbyCard] = useState(false);
   const fadeTimerRef = useRef<number | null>(null);
+  const standbyCardTimerRef = useRef<number | null>(null);
   const playerMountRef = useRef<HTMLDivElement | null>(null);
   const playerRef = useRef<YouTubePlayer | null>(null);
   const isMobilePortrait = useMobileLandscapeGate();
@@ -532,6 +539,7 @@ export default function Home() {
   useEffect(() => {
     return () => {
       if (fadeTimerRef.current) window.clearTimeout(fadeTimerRef.current);
+      if (standbyCardTimerRef.current) window.clearTimeout(standbyCardTimerRef.current);
       playerRef.current?.destroy();
       playerRef.current = null;
     };
@@ -540,6 +548,11 @@ export default function Home() {
   useEffect(() => {
     if (isMobilePortrait) return;
     setBackgroundReady(false);
+    setShowStandbyCard(false);
+    if (standbyCardTimerRef.current) window.clearTimeout(standbyCardTimerRef.current);
+    standbyCardTimerRef.current = window.setTimeout(() => {
+      setShowStandbyCard(true);
+    }, 900);
   }, [isMobilePortrait, playerNonce]);
 
   useEffect(() => {
@@ -633,64 +646,56 @@ export default function Home() {
                 </div>
               ) : null}
 
-              {(isMobilePortrait || !renderSlot || !playerReady) && (
-                <div
-                  className={`absolute inset-0 z-20 flex h-full w-full items-center justify-center overflow-hidden bg-black ${
-                    isMobilePortrait
-                      ? "opacity-100"
-                      : hasStarted && !showPoster && !playerReady
-                        ? "opacity-100"
-                        : hasStarted && !showPoster
-                          ? "pointer-events-none opacity-0"
-                          : "opacity-100"
-                  }`}
-                  aria-label={isMobilePortrait ? "Rotate phone to view" : undefined}
-                >
-                  {isMobilePortrait ? (
-                    <>
-                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.08),transparent_58%)]" />
-                      <div className="absolute inset-0 opacity-15 mix-blend-screen [background-image:linear-gradient(to_bottom,rgba(255,255,255,0.08)_0,rgba(255,255,255,0.02)_1px,transparent_1px,transparent_6px)] [background-size:100%_6px]" />
-                      <div className="relative z-10 flex max-w-[80%] flex-col items-center gap-5 text-center text-[#d7d0bc]">
-                        <div className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-full border border-[#d7d0bc]/45 bg-black/35 backdrop-blur-sm">
-                          <video
-                            className="h-full w-full object-cover"
-                            autoPlay
-                            loop
-                            muted
-                            playsInline
-                            preload="metadata"
-                            poster="/mobile-kickflip-poster.jpg"
-                            aria-hidden="true"
-                          >
-                            <source src="/mobile-kickflip-loop.webm" type="video/webm" />
-                            <source src="/mobile-kickflip-loop-optimized.mp4" type="video/mp4" />
-                            <source src="/mobile-kickflip-loop.mp4" type="video/mp4" />
-                          </video>
-                        </div>
-                        <div className="text-[11px] uppercase tracking-[0.32em]">
-                          KICKFLIP YOUR PHONE
-                          <br />
-                          HORIZONTALLY TO VIEW
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="relative z-10 flex h-full w-full items-center justify-center p-[6%]">
-                      <div className="relative aspect-[4/3] w-full max-w-[520px] overflow-hidden border border-black/70 bg-[#111] shadow-[0_8px_30px_rgba(0,0,0,0.55)]">
-                        <div className="absolute inset-0 opacity-90 [background:linear-gradient(to_right,#c9c9c9_0_14.285%,#caca00_14.285%_28.57%,#21c7cb_28.57%_42.855%,#00d100_42.855%_57.14%,#cb20c8_57.14%_71.425%,#d10000_71.425%_85.71%,#1a12cb_85.71%_100%)]" />
-                        <div className="absolute left-0 right-0 top-[66.5%] h-[8.5%] [background:linear-gradient(to_right,#1520d6_0_14.285%,#111_14.285%_28.57%,#cb20c8_28.57%_42.855%,#111_42.855%_57.14%,#21c7cb_57.14%_71.425%,#111_71.425%_85.71%,#c9c9c9_85.71%_100%)]" />
-                        <div className="absolute bottom-0 left-0 right-0 top-[75%] [background:linear-gradient(to_right,#0b2b63_0_18%,#f3f3f3_18%_36%,#3c0a74_36%_54%,#111_54%_72%,#1a1a1a_72%_84%,#101010_84%_100%)]" />
-                        <div className="absolute bottom-0 right-[7%] top-[75%] w-[18%] [background:linear-gradient(to_right,#0f0f0f_0_38%,#1d1d1d_38%_64%,#111_64%_100%)]" />
-                        <div className="absolute inset-0 opacity-[0.08] mix-blend-screen [background-image:linear-gradient(to_bottom,rgba(255,255,255,0.22)_0,rgba(255,255,255,0.08)_1px,transparent_1px,transparent_5px)] [background-size:100%_5px]" />
-                        <div className="absolute inset-0 animate-[standby-flicker_0.22s_steps(2,end)_infinite] opacity-[0.08] mix-blend-screen [background-image:linear-gradient(to_bottom,rgba(255,255,255,0.18)_0,rgba(255,255,255,0.04)_1px,transparent_1px,transparent_3px)] [background-size:100%_3px]" />
-                        <div className="absolute inset-x-0 top-[-12%] h-[28%] animate-[standby-roll_6s_linear_infinite] bg-[linear-gradient(to_bottom,rgba(255,255,255,0.0),rgba(255,255,255,0.12),rgba(255,255,255,0.0))] opacity-[0.12] mix-blend-screen" />
-                        <div className="absolute inset-0 opacity-[0.06] [background-image:radial-gradient(circle_at_center,rgba(255,255,255,0.6)_0,transparent_55%)]" />
-                        <div className="absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 bg-black px-5 py-2 text-center text-[clamp(0.78rem,1.35vw,1rem)] uppercase tracking-[0.18em] text-white shadow-[0_0_0_1px_rgba(255,255,255,0.06),0_10px_20px_rgba(0,0,0,0.45)]">
-                          PLEASE STAND BY
-                        </div>
+              <div
+                className={`absolute inset-0 z-20 flex h-full w-full items-center justify-center overflow-hidden bg-black transition-opacity duration-150 ${
+                  isMobilePortrait ? "opacity-100" : "pointer-events-none opacity-0"
+                }`}
+                aria-label={isMobilePortrait ? "Rotate phone to view" : undefined}
+              >
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.08),transparent_58%)]" />
+                  <div className="absolute inset-0 opacity-15 mix-blend-screen [background-image:linear-gradient(to_bottom,rgba(255,255,255,0.08)_0,rgba(255,255,255,0.02)_1px,transparent_1px,transparent_6px)] [background-size:100%_6px]" />
+                  <div className="relative z-10 flex max-w-[80%] flex-col items-center gap-5 text-center text-[#d7d0bc]">
+                    <div className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-full border border-[#d7d0bc]/45 bg-black/35 backdrop-blur-sm">
+                      <video
+                        className="h-full w-full object-cover"
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        preload="metadata"
+                        poster="/mobile-kickflip-poster.jpg"
+                        aria-hidden="true"
+                      >
+                        <source src="/mobile-kickflip-loop.webm" type="video/webm" />
+                        <source src="/mobile-kickflip-loop-optimized.mp4" type="video/mp4" />
+                        <source src="/mobile-kickflip-loop.mp4" type="video/mp4" />
+                      </video>
+                    </div>
+                    <div className="text-[11px] uppercase tracking-[0.32em]">
+                      KICKFLIP YOUR PHONE
+                      <br />
+                      HORIZONTALLY TO VIEW
+                    </div>
+                  </div>
+                </div>
+
+              {!isMobilePortrait && !playerReady && showStandbyCard && (
+                <div className="absolute inset-0 z-20 flex h-full w-full items-center justify-center overflow-hidden bg-transparent pointer-events-none">
+                  <div className="relative z-10 flex h-full w-full items-center justify-center p-[6%]">
+                    <div className="relative aspect-[4/3] w-full max-w-[520px] overflow-hidden border border-black/70 bg-[#111] shadow-[0_8px_30px_rgba(0,0,0,0.55)]">
+                      <div className="absolute inset-0 opacity-90 [background:linear-gradient(to_right,#c9c9c9_0_14.285%,#caca00_14.285%_28.57%,#21c7cb_28.57%_42.855%,#00d100_42.855%_57.14%,#cb20c8_57.14%_71.425%,#d10000_71.425%_85.71%,#1a12cb_85.71%_100%)]" />
+                      <div className="absolute left-0 right-0 top-[66.5%] h-[8.5%] [background:linear-gradient(to_right,#1520d6_0_14.285%,#111_14.285%_28.57%,#cb20c8_28.57%_42.855%,#111_42.855%_57.14%,#21c7cb_57.14%_71.425%,#111_71.425%_85.71%,#c9c9c9_85.71%_100%)]" />
+                      <div className="absolute bottom-0 left-0 right-0 top-[75%] [background:linear-gradient(to_right,#0b2b63_0_18%,#f3f3f3_18%_36%,#3c0a74_36%_54%,#111_54%_72%,#1a1a1a_72%_84%,#101010_84%_100%)]" />
+                      <div className="absolute bottom-0 right-[7%] top-[75%] w-[18%] [background:linear-gradient(to_right,#0f0f0f_0_38%,#1d1d1d_38%_64%,#111_64%_100%)]" />
+                      <div className="absolute inset-0 opacity-[0.08] mix-blend-screen [background-image:linear-gradient(to_bottom,rgba(255,255,255,0.22)_0,rgba(255,255,255,0.08)_1px,transparent_1px,transparent_5px)] [background-size:100%_5px]" />
+                      <div className="absolute inset-0 animate-[standby-flicker_0.22s_steps(2,end)_infinite] opacity-[0.08] mix-blend-screen [background-image:linear-gradient(to_bottom,rgba(255,255,255,0.18)_0,rgba(255,255,255,0.04)_1px,transparent_1px,transparent_3px)] [background-size:100%_3px]" />
+                      <div className="absolute inset-x-0 top-[-12%] h-[28%] animate-[standby-roll_6s_linear_infinite] bg-[linear-gradient(to_bottom,rgba(255,255,255,0.0),rgba(255,255,255,0.12),rgba(255,255,255,0.0))] opacity-[0.12] mix-blend-screen" />
+                      <div className="absolute inset-0 opacity-[0.06] [background-image:radial-gradient(circle_at_center,rgba(255,255,255,0.6)_0,transparent_55%)]" />
+                      <div className="absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 bg-black px-5 py-2 text-center text-[clamp(0.78rem,1.35vw,1rem)] uppercase tracking-[0.18em] text-white shadow-[0_0_0_1px_rgba(255,255,255,0.06),0_10px_20px_rgba(0,0,0,0.45)]">
+                        PLEASE STAND BY
                       </div>
                     </div>
-                  )}
+                  </div>
                 </div>
               )}
 
@@ -706,7 +711,7 @@ export default function Home() {
             <img
               src="/skate-shop-bg.webp"
               alt="Skateshop TV background"
-              className="pointer-events-none absolute inset-0 z-10 h-full w-full object-fill"
+              className={`pointer-events-none absolute inset-0 z-10 h-full w-full object-fill transition-opacity duration-200 ${backgroundReady ? "opacity-100" : "opacity-0"}`}
               onLoad={() => setBackgroundReady(true)}
             />
           )}
