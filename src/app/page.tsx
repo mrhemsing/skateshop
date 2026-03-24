@@ -33,8 +33,6 @@ declare global {
   }
 }
 
-const CHANNEL_EPOCH = Date.UTC(2026, 2, 22, 4, 0, 0);
-
 const YOUTUBE_URLS = [
   "https://youtu.be/qI5C1R1L0EQ",
   "https://youtu.be/jjVhyxiMaME",
@@ -289,21 +287,10 @@ type ChannelItem = {
   duration: number;
 };
 
-function getLiveSlot(playlist: ChannelItem[], nowMs: number) {
-  const totalDuration = playlist.reduce((sum, item) => sum + item.duration, 0);
-  const elapsedSeconds = Math.floor((nowMs - CHANNEL_EPOCH) / 1000);
-  const loopOffset = ((elapsedSeconds % totalDuration) + totalDuration) % totalDuration;
-
-  let cursor = 0;
-  for (let i = 0; i < playlist.length; i += 1) {
-    const item = playlist[i];
-    if (loopOffset < cursor + item.duration) {
-      return { index: i, item, offsetSeconds: loopOffset - cursor };
-    }
-    cursor += item.duration;
-  }
-
-  return { index: 0, item: playlist[0], offsetSeconds: 0 };
+function pickRandomSlot(playlist: ChannelItem[]) {
+  const index = Math.floor(Math.random() * playlist.length);
+  const item = playlist[index];
+  return { index, item, offsetSeconds: 0 };
 }
 
 function useMobileLandscapeGate() {
@@ -353,23 +340,23 @@ export default function Home() {
     setPlaylist(ids.map((id) => ({ id, duration: FALLBACK_DURATION_SECONDS })));
   }, [ids]);
 
-  const liveSlot = useMemo(() => {
-    if (!playlist?.length) return null;
-    return getLiveSlot(playlist, Date.now());
-  }, [playlist]);
-
-  useEffect(() => {
-    if (!playlist?.length || isMobilePortrait || hasStarted || !liveSlot) return;
-
+  const startRandomChannel = () => {
+    if (!playlist?.length || isMobilePortrait) return;
+    const slot = pickRandomSlot(playlist);
     setMountedSlot({
-      id: liveSlot.item.id,
-      index: liveSlot.index,
+      id: slot.item.id,
+      index: slot.index,
       offsetSeconds: 0,
     });
     setPlayerReady(false);
     setPlayerNonce((value) => value + 1);
     setHasStarted(true);
-  }, [playlist, isMobilePortrait, hasStarted, liveSlot]);
+  };
+
+  useEffect(() => {
+    if (!playlist?.length || isMobilePortrait || hasStarted) return;
+    startRandomChannel();
+  }, [playlist, isMobilePortrait, hasStarted]);
 
   useEffect(() => {
     if (!playlist?.length) return;
@@ -377,15 +364,8 @@ export default function Home() {
     const ensureLandscapePlayback = () => {
       const portrait = window.innerHeight > window.innerWidth && window.innerWidth < 900 && window.matchMedia("(pointer: coarse)").matches;
       if (portrait) return;
-      if (!hasStarted && liveSlot) {
-        setMountedSlot({
-          id: liveSlot.item.id,
-          index: liveSlot.index,
-          offsetSeconds: 0,
-        });
-        setPlayerReady(false);
-        setPlayerNonce((value) => value + 1);
-        setHasStarted(true);
+      if (!hasStarted) {
+        startRandomChannel();
       }
     };
 
@@ -396,7 +376,7 @@ export default function Home() {
       window.removeEventListener("orientationchange", ensureLandscapePlayback);
       window.removeEventListener("pageshow", ensureLandscapePlayback);
     };
-  }, [playlist, isMobilePortrait, hasStarted, liveSlot]);
+  }, [playlist, isMobilePortrait, hasStarted]);
 
   const renderSlot = mountedSlot;
 
