@@ -350,6 +350,7 @@ export default function Home() {
   const [playerNonce, setPlayerNonce] = useState(0);
   const [playerReady, setPlayerReady] = useState(false);
   const [backgroundReady, setBackgroundReady] = useState(false);
+  const [shopSceneVisible, setShopSceneVisible] = useState(false);
   const fadeTimerRef = useRef<number | null>(null);
   const playerMountRef = useRef<HTMLDivElement | null>(null);
   const playerRef = useRef<YouTubePlayer | null>(null);
@@ -538,7 +539,14 @@ export default function Home() {
   useEffect(() => {
     if (isMobilePortrait) return;
     setBackgroundReady(false);
+    setShopSceneVisible(false);
   }, [isMobilePortrait, playerNonce]);
+
+  useEffect(() => {
+    if (!isMobilePortrait && backgroundReady && renderSlot) {
+      setShopSceneVisible(true);
+    }
+  }, [isMobilePortrait, backgroundReady, renderSlot]);
 
   useEffect(() => {
     if (!renderSlot || isMobilePortrait || !playerMountRef.current) return;
@@ -551,6 +559,11 @@ export default function Home() {
     const mountPlayer = async () => {
       await loadYouTubeApi();
       if (cancelled || !window.YT?.Player) return;
+
+      if (fadeTimerRef.current) window.clearTimeout(fadeTimerRef.current);
+      fadeTimerRef.current = window.setTimeout(() => {
+        setPlayerReady(true);
+      }, 20000);
 
       const player = new window.YT.Player(mountNode, {
         videoId: renderSlot.id,
@@ -616,8 +629,8 @@ export default function Home() {
   }, [muted]);
 
   const currentTitle = renderSlot ? VIDEO_TITLES[renderSlot.id] ?? "Unknown clip" : "";
-  const showLoadingShop = !isMobilePortrait && (!playlist || !hasStarted || !renderSlot);
-  const showTvStandby = !isMobilePortrait && !!renderSlot && !playerReady;
+  const showLoadingShop = !isMobilePortrait && !shopSceneVisible;
+  const showTvStandby = !isMobilePortrait && shopSceneVisible && !!renderSlot && !playerReady;
 
   return (
     <main className="relative h-screen w-screen overflow-hidden bg-black">
