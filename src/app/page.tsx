@@ -125,40 +125,40 @@ const YOUTUBE_URLS = [
 const FALLBACK_DURATION_SECONDS = 180;
 
 const VIDEO_TITLES: Record<string, string> = {
-  "qI5C1R1L0EQ": "411VM - #01 (1993)",
-  "jjVhyxiMaME": "411VM - #02 (1993)",
-  "ESzoVaTzniA": "411VM - #03 (1993)",
-  "qDU84ENFna0": "411VM - #04 (1994)",
-  "taKB24OWoSQ": "411VM - #05 (1994)",
-  "akJKOPLhm70": "411VM - #06 (1994)",
-  "ZK8T9l9yWyo": "411VM - #07 (1994)",
-  "buOnIH5PVg8": "411VM - #08 (1994)",
-  "aZqYoTqxgqc": "411VM - #09 (1994)",
+  qI5C1R1L0EQ: "411VM - #01 (1993)",
+  jjVhyxiMaME: "411VM - #02 (1993)",
+  ESzoVaTzniA: "411VM - #03 (1993)",
+  qDU84ENFna0: "411VM - #04 (1994)",
+  taKB24OWoSQ: "411VM - #05 (1994)",
+  akJKOPLhm70: "411VM - #06 (1994)",
+  ZK8T9l9yWyo: "411VM - #07 (1994)",
+  buOnIH5PVg8: "411VM - #08 (1994)",
+  aZqYoTqxgqc: "411VM - #09 (1994)",
   "-2Zy44hHSqs": "411VM - #10 (1995)",
   "Q6v4RTg-zEM": "411VM - #11 (1995)",
-  "rITGu0ZOUr0": "411VM - #12 (1995)",
-  "a8v4Y3QMHGg": "411VM - #13 (1995)",
-  "Q08MmfWIKrU": "411VM - #14 (1996)",
-  "VP35hLWePdg": "411VM - #16 (1996)",
-  "LZTXtvOXu9A": "411VM - #17 (1996)",
-  "zgZIkR4hKUQ": "411VM - #18 (1996)",
-  "RzH8cusmbd4": "411VM - #19 (1996)",
-  "BArwsRHJsFw": "411VM - #20 (1997)",
-  "YNyTCpydQxI": "411VM - #21 (1997)",
-  "vNGoIgPuqa0": "411VM - #22 (1997)",
-  "Myw8HOZCvus": "411VM - #23 (1997)",
-  "j7kjwnMQ0dk": "411VM - #24 (1997)",
-  "HHO1vJtzgBI": "411VM - #25 (1997)",
-  "qexak6IhEA0": "411VM - #26 (1998)",
-  "lnTBJXVvOoM": "411VM - #27 (1998)",
+  rITGu0ZOUr0: "411VM - #12 (1995)",
+  a8v4Y3QMHGg: "411VM - #13 (1995)",
+  Q08MmfWIKrU: "411VM - #14 (1996)",
+  VP35hLWePdg: "411VM - #16 (1996)",
+  LZTXtvOXu9A: "411VM - #17 (1996)",
+  zgZIkR4hKUQ: "411VM - #18 (1996)",
+  RzH8cusmbd4: "411VM - #19 (1996)",
+  BArwsRHJsFw: "411VM - #20 (1997)",
+  YNyTCpydQxI: "411VM - #21 (1997)",
+  vNGoIgPuqa0: "411VM - #22 (1997)",
+  Myw8HOZCvus: "411VM - #23 (1997)",
+  j7kjwnMQ0dk: "411VM - #24 (1997)",
+  HHO1vJtzgBI: "411VM - #25 (1997)",
+  qexak6IhEA0: "411VM - #26 (1998)",
+  lnTBJXVvOoM: "411VM - #27 (1998)",
   "UTGe8_BM0p8": "411VM - #28 (1998)",
-  "Mu9sctz988c": "411VM - #29 (1998)",
+  Mu9sctz988c: "411VM - #29 (1998)",
   "02XmxkMDVNw": "411VM - #30 (1998)",
   "7Bkqz_Ps8ec": "411VM - #31 (1998)",
   "5O1XsBkhpno": "411VM - #32 (1999)",
   "fA_c2Q-4X5Y": "411VM - #33 (1999)",
-  "WxSLkhBXwPw": "411VM - #34 (1999)",
-  "sjWviUqwAdw": "411VM - #35 (1999)",
+  WxSLkhBXwPw: "411VM - #34 (1999)",
+  sjWviUqwAdw: "411VM - #35 (1999)",
   "gkzjap-0KmQ": "411VM - #36 (1999)",
   "4tx2Q9pNxPc": "Toy Machine – Welcome to Hell (1996)",
   A_6FADx3hfU: "411 VM: Europe (1999)",
@@ -214,9 +214,7 @@ const VIDEO_TITLES: Record<string, string> = {
 function extractYouTubeId(url: string) {
   try {
     const parsed = new URL(url);
-
     if (parsed.hostname.includes("youtu.be")) return parsed.pathname.replace(/^\//, "");
-
     if (parsed.hostname.includes("youtube.com")) {
       if (parsed.pathname.startsWith("/watch")) return parsed.searchParams.get("v");
       if (parsed.pathname.startsWith("/embed/")) return parsed.pathname.split("/embed/")[1]?.split("/")[0] ?? null;
@@ -225,7 +223,6 @@ function extractYouTubeId(url: string) {
   } catch {
     return null;
   }
-
   return null;
 }
 
@@ -342,168 +339,37 @@ function useMobileLandscapeGate() {
 export default function Home() {
   const ids = useMemo(() => YOUTUBE_URLS.map((url) => extractYouTubeId(url)).filter((id): id is string => Boolean(id)), []);
   const [playlist, setPlaylist] = useState<ChannelItem[] | null>(null);
-  const [nowMs, setNowMs] = useState(() => Date.now());
-  const [serverOffsetMs, setServerOffsetMs] = useState<number | null>(null);
   const [hasStarted, setHasStarted] = useState(false);
   const [mountedSlot, setMountedSlot] = useState<{ id: string; index: number; offsetSeconds: number } | null>(null);
   const [muted, setMuted] = useState(true);
   const [playerNonce, setPlayerNonce] = useState(0);
   const [playerReady, setPlayerReady] = useState(false);
   const [backgroundReady, setBackgroundReady] = useState(false);
-  const [shopSceneVisible, setShopSceneVisible] = useState(false);
-  const fadeTimerRef = useRef<number | null>(null);
   const playerMountRef = useRef<HTMLDivElement | null>(null);
   const playerRef = useRef<YouTubePlayer | null>(null);
   const isMobilePortrait = useMobileLandscapeGate();
 
   useEffect(() => {
-    let cancelled = false;
-
     setPlaylist(ids.map((id) => ({ id, duration: FALLBACK_DURATION_SECONDS })));
-
-    (async () => {
-      const durations = await Promise.all(ids.map(async (id) => ({ id, duration: await fetchDurationSeconds(id) })));
-      if (!cancelled) setPlaylist(durations);
-    })();
-
-    return () => {
-      cancelled = true;
-    };
   }, [ids]);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    const syncServerClock = async () => {
-      try {
-        const startedAt = Date.now();
-        const response = await fetch("/api/channel-time", { cache: "no-store" });
-        const endedAt = Date.now();
-        if (!response.ok) return;
-        const data = (await response.json()) as { nowMs?: number };
-        if (!data.nowMs || cancelled) return;
-
-        const estimatedServerNow = data.nowMs + Math.round((endedAt - startedAt) / 2);
-        setServerOffsetMs(estimatedServerNow - endedAt);
-        setNowMs(estimatedServerNow);
-      } catch {
-        // fall back to client clock
-      }
-    };
-
-    syncServerClock();
-    const interval = window.setInterval(syncServerClock, 30000);
-    window.addEventListener("focus", syncServerClock);
-    window.addEventListener("pageshow", syncServerClock);
-
-    return () => {
-      cancelled = true;
-      window.clearInterval(interval);
-      window.removeEventListener("focus", syncServerClock);
-      window.removeEventListener("pageshow", syncServerClock);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!playlist || !hasStarted) return;
-
-    const getChannelNow = () => Date.now() + (serverOffsetMs ?? 0);
-
-    const syncToLiveNow = () => {
-      const currentNow = getChannelNow();
-      const slot = getLiveSlot(playlist, currentNow);
-      setNowMs(currentNow);
-      setMountedSlot((current) => {
-        if (!current || current.index !== slot.index) {
-          return {
-            id: slot.item.id,
-            index: slot.index,
-            offsetSeconds: slot.offsetSeconds,
-          };
-        }
-        return current;
-      });
-    };
-
-    const interval = window.setInterval(() => {
-      setNowMs(getChannelNow());
-    }, 1000);
-    window.addEventListener("focus", syncToLiveNow);
-    window.addEventListener("pageshow", syncToLiveNow);
-
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible") {
-        syncToLiveNow();
-      }
-    };
-
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-
-    return () => {
-      window.clearInterval(interval);
-      window.removeEventListener("focus", syncToLiveNow);
-      window.removeEventListener("pageshow", syncToLiveNow);
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-    };
-  }, [playlist, hasStarted, serverOffsetMs]);
 
   const liveSlot = useMemo(() => {
     if (!playlist?.length) return null;
-    return getLiveSlot(playlist, nowMs);
-  }, [playlist, nowMs]);
+    return getLiveSlot(playlist, Date.now());
+  }, [playlist]);
 
   useEffect(() => {
-    if (!hasStarted || !liveSlot) return;
+    if (!playlist?.length || isMobilePortrait || hasStarted || !liveSlot) return;
 
-    setMountedSlot((current) => {
-      if (!current) {
-        return {
-          id: liveSlot.item.id,
-          index: liveSlot.index,
-          offsetSeconds: liveSlot.offsetSeconds,
-        };
-      }
-
-      if (current.index !== liveSlot.index) {
-        return {
-          id: liveSlot.item.id,
-          index: liveSlot.index,
-          offsetSeconds: liveSlot.offsetSeconds,
-        };
-      }
-
-      return current;
-    });
-  }, [hasStarted, liveSlot]);
-
-  const startChannel = () => {
-    if (!playlist?.length || isMobilePortrait) return;
-
-    const currentNow = Date.now() + (serverOffsetMs ?? 0);
-    const slot = getLiveSlot(playlist, currentNow);
-
-    setNowMs(currentNow);
     setMountedSlot({
-      id: slot.item.id,
-      index: slot.index,
-      offsetSeconds: slot.offsetSeconds,
+      id: liveSlot.item.id,
+      index: liveSlot.index,
+      offsetSeconds: 0,
     });
     setPlayerReady(false);
     setPlayerNonce((value) => value + 1);
     setHasStarted(true);
-  };
-
-  useEffect(() => {
-    if (!playlist?.length) return;
-    if (isMobilePortrait || hasStarted) return;
-
-    startChannel();
-  }, [playlist, isMobilePortrait, hasStarted, serverOffsetMs]);
-
-  useEffect(() => {
-    if (mountedSlot || !playlist?.length || isMobilePortrait) return;
-    startChannel();
-  }, [mountedSlot, playlist, isMobilePortrait, serverOffsetMs]);
+  }, [playlist, isMobilePortrait, hasStarted, liveSlot]);
 
   useEffect(() => {
     if (!playlist?.length) return;
@@ -511,26 +377,31 @@ export default function Home() {
     const ensureLandscapePlayback = () => {
       const portrait = window.innerHeight > window.innerWidth && window.innerWidth < 900 && window.matchMedia("(pointer: coarse)").matches;
       if (portrait) return;
-      setPlayerNonce((value) => value + 1);
-      startChannel();
+      if (!hasStarted && liveSlot) {
+        setMountedSlot({
+          id: liveSlot.item.id,
+          index: liveSlot.index,
+          offsetSeconds: 0,
+        });
+        setPlayerReady(false);
+        setPlayerNonce((value) => value + 1);
+        setHasStarted(true);
+      }
     };
 
     window.addEventListener("orientationchange", ensureLandscapePlayback);
-    window.addEventListener("resize", ensureLandscapePlayback);
     window.addEventListener("pageshow", ensureLandscapePlayback);
 
     return () => {
       window.removeEventListener("orientationchange", ensureLandscapePlayback);
-      window.removeEventListener("resize", ensureLandscapePlayback);
       window.removeEventListener("pageshow", ensureLandscapePlayback);
     };
-  }, [playlist, serverOffsetMs, isMobilePortrait]);
+  }, [playlist, isMobilePortrait, hasStarted, liveSlot]);
 
   const renderSlot = mountedSlot;
 
   useEffect(() => {
     return () => {
-      if (fadeTimerRef.current) window.clearTimeout(fadeTimerRef.current);
       playerRef.current?.destroy();
       playerRef.current = null;
     };
@@ -539,14 +410,7 @@ export default function Home() {
   useEffect(() => {
     if (isMobilePortrait) return;
     setBackgroundReady(false);
-    setShopSceneVisible(false);
   }, [isMobilePortrait, playerNonce]);
-
-  useEffect(() => {
-    if (!isMobilePortrait && backgroundReady && renderSlot) {
-      setShopSceneVisible(true);
-    }
-  }, [isMobilePortrait, backgroundReady, renderSlot]);
 
   useEffect(() => {
     if (!renderSlot || isMobilePortrait || !playerMountRef.current) return;
@@ -557,18 +421,15 @@ export default function Home() {
     setPlayerReady(false);
 
     const mountPlayer = async () => {
+      const w = window as typeof window & { YT?: any };
       await loadYouTubeApi();
-      if (cancelled || !window.YT?.Player) return;
+      if (cancelled || !w.YT?.Player) return;
 
-      if (fadeTimerRef.current) window.clearTimeout(fadeTimerRef.current);
-      fadeTimerRef.current = window.setTimeout(() => {
-        setPlayerReady(true);
-      }, 20000);
-
-      const player = new window.YT.Player(mountNode, {
+      const player = new w.YT.Player(mountNode, {
         videoId: renderSlot.id,
         playerVars: {
           autoplay: 1,
+          mute: muted ? 1 : 0,
           controls: 0,
           loop: 1,
           playlist: renderSlot.id,
@@ -581,29 +442,23 @@ export default function Home() {
           cc_load_policy: 0,
           hl: "en",
           color: "white",
-          start: Math.max(0, renderSlot.offsetSeconds),
+          start: 0,
           enablejsapi: 1,
           origin: window.location.origin,
         },
         events: {
-          onReady: (event) => {
+          onReady: (event: { target: YouTubePlayer }) => {
             if (muted) event.target.mute?.();
             else event.target.unMute?.();
             event.target.playVideo?.();
           },
-          onStateChange: (event) => {
-            if (event.data === window.YT?.PlayerState?.PLAYING) {
-              if (fadeTimerRef.current) window.clearTimeout(fadeTimerRef.current);
-              fadeTimerRef.current = window.setTimeout(() => {
-                setPlayerReady(true);
-              }, 2500);
+          onStateChange: (event: { data: number }) => {
+            if (event.data === 3 || event.data === w.YT?.PlayerState?.PLAYING) {
+              setPlayerReady(true);
             }
           },
           onError: () => {
-            if (fadeTimerRef.current) window.clearTimeout(fadeTimerRef.current);
-            fadeTimerRef.current = window.setTimeout(() => {
-              setPlayerReady(true);
-            }, 2500);
+            setPlayerReady(true);
           },
         },
       });
@@ -629,17 +484,17 @@ export default function Home() {
   }, [muted]);
 
   const currentTitle = renderSlot ? VIDEO_TITLES[renderSlot.id] ?? "Unknown clip" : "";
-  const showLoadingShop = !isMobilePortrait && !shopSceneVisible;
-  const showTvStandby = !isMobilePortrait && shopSceneVisible && !!renderSlot && !playerReady;
+  const showLoadingShop = !isMobilePortrait && !backgroundReady;
 
   return (
     <main className="relative h-screen w-screen overflow-hidden bg-black">
-      {showLoadingShop && !isMobilePortrait && (
-        <div className="absolute inset-0 z-40 flex items-center justify-center bg-black text-[11px] uppercase tracking-[0.32em] text-[#d7d0bc]">
+      {showLoadingShop && (
+        <div className="pointer-events-none absolute inset-0 z-40 flex items-center justify-center bg-black/92 text-[11px] uppercase tracking-[0.32em] text-[#d7d0bc]">
           LOADING SHOP<span className="ml-1 inline-flex w-[2.4em] justify-start" aria-hidden="true"><span className="animate-pulse [animation-duration:1.2s]">...</span></span>
         </div>
       )}
-      <div className={`absolute left-1/2 top-[58%] h-[max(46.136vw,100vh)] w-[max(100vw,216.744vh)] -translate-x-1/2 -translate-y-1/2 overflow-hidden bg-black transition-opacity duration-200 lg:top-1/2 ${showLoadingShop ? "opacity-0" : "opacity-100"}`}>
+
+      <div className="absolute left-1/2 top-[58%] h-[max(46.136vw,100vh)] w-[max(100vw,216.744vh)] -translate-x-1/2 -translate-y-1/2 overflow-hidden bg-black lg:top-1/2">
         <div className="relative h-full w-full [container-type:size]">
           <div className="absolute left-[26.82%] top-[calc(15.92%-4.5px)] z-0 h-[52.16%] w-[46.36%]">
             <div className="relative h-full w-full overflow-hidden rounded-[2.5%] bg-black">
@@ -649,7 +504,7 @@ export default function Home() {
                 </div>
               ) : null}
 
-              {isMobilePortrait ? (
+              {isMobilePortrait && (
                 <div className="absolute inset-0 z-20 flex h-full w-full items-center justify-center overflow-hidden bg-black" aria-label="Rotate phone to view">
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.08),transparent_58%)]" />
                   <div className="absolute inset-0 opacity-15 mix-blend-screen [background-image:linear-gradient(to_bottom,rgba(255,255,255,0.08)_0,rgba(255,255,255,0.02)_1px,transparent_1px,transparent_6px)] [background-size:100%_6px]" />
@@ -674,26 +529,6 @@ export default function Home() {
                       KICKFLIP YOUR SCREEN
                       <br />
                       HORIZONTALLY TO VIEW
-                    </div>
-                  </div>
-                </div>
-              ) : null}
-
-              {showTvStandby && (
-                <div className="absolute inset-0 z-20 flex h-full w-full items-center justify-center overflow-hidden bg-black">
-                  <div className="relative z-10 flex h-full w-full items-center justify-center p-[6%]">
-                    <div className="relative aspect-[4/3] w-full max-w-[520px] overflow-hidden border border-black/70 bg-[#111] shadow-[0_8px_30px_rgba(0,0,0,0.55)]">
-                      <div className="absolute inset-0 opacity-90 [background:linear-gradient(to_right,#c9c9c9_0_14.285%,#caca00_14.285%_28.57%,#21c7cb_28.57%_42.855%,#00d100_42.855%_57.14%,#cb20c8_57.14%_71.425%,#d10000_71.425%_85.71%,#1a12cb_85.71%_100%)]" />
-                      <div className="absolute left-0 right-0 top-[66.5%] h-[8.5%] [background:linear-gradient(to_right,#1520d6_0_14.285%,#111_14.285%_28.57%,#cb20c8_28.57%_42.855%,#111_42.855%_57.14%,#21c7cb_57.14%_71.425%,#111_71.425%_85.71%,#c9c9c9_85.71%_100%)]" />
-                      <div className="absolute bottom-0 left-0 right-0 top-[75%] [background:linear-gradient(to_right,#0b2b63_0_18%,#f3f3f3_18%_36%,#3c0a74_36%_54%,#111_54%_72%,#1a1a1a_72%_84%,#101010_84%_100%)]" />
-                      <div className="absolute bottom-0 right-[7%] top-[75%] w-[18%] [background:linear-gradient(to_right,#0f0f0f_0_38%,#1d1d1d_38%_64%,#111_64%_100%)]" />
-                      <div className="absolute inset-0 opacity-[0.08] mix-blend-screen [background-image:linear-gradient(to_bottom,rgba(255,255,255,0.22)_0,rgba(255,255,255,0.08)_1px,transparent_1px,transparent_5px)] [background-size:100%_5px]" />
-                      <div className="absolute inset-0 animate-[standby-flicker_0.22s_steps(2,end)_infinite] opacity-[0.08] mix-blend-screen [background-image:linear-gradient(to_bottom,rgba(255,255,255,0.18)_0,rgba(255,255,255,0.04)_1px,transparent_1px,transparent_3px)] [background-size:100%_3px]" />
-                      <div className="absolute inset-x-0 top-[-12%] h-[28%] animate-[standby-roll_6s_linear_infinite] bg-[linear-gradient(to_bottom,rgba(255,255,255,0.0),rgba(255,255,255,0.12),rgba(255,255,255,0.0))] opacity-[0.12] mix-blend-screen" />
-                      <div className="absolute inset-0 opacity-[0.06] [background-image:radial-gradient(circle_at_center,rgba(255,255,255,0.6)_0,transparent_55%)]" />
-                      <div className="absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 bg-black px-5 py-2 text-center text-[clamp(0.78rem,1.35vw,1rem)] uppercase tracking-[0.18em] text-white shadow-[0_0_0_1px_rgba(255,255,255,0.06),0_10px_20px_rgba(0,0,0,0.45)]">
-                        PLEASE STAND BY
-                      </div>
                     </div>
                   </div>
                 </div>
