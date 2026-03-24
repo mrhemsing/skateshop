@@ -8,6 +8,7 @@ type YouTubePlayer = {
   mute?: () => void;
   unMute?: () => void;
   playVideo?: () => void;
+  pauseVideo?: () => void;
 };
 
 declare global {
@@ -329,6 +330,7 @@ export default function Home() {
   const [hasStarted, setHasStarted] = useState(false);
   const [mountedSlot, setMountedSlot] = useState<{ id: string; index: number; offsetSeconds: number } | null>(null);
   const [muted, setMuted] = useState(true);
+  const [paused, setPaused] = useState(false);
   const [playerNonce, setPlayerNonce] = useState(0);
   const [playerReady, setPlayerReady] = useState(false);
   const [backgroundReady, setBackgroundReady] = useState(false);
@@ -349,6 +351,7 @@ export default function Home() {
       offsetSeconds: 0,
     });
     setPlayerReady(false);
+    setPaused(false);
     setPlayerNonce((value) => value + 1);
     setHasStarted(true);
   };
@@ -425,6 +428,7 @@ export default function Home() {
           start: 0,
           enablejsapi: 1,
           origin: window.location.origin,
+          widget_referrer: window.location.origin,
         },
         events: {
           onReady: (event: { target: YouTubePlayer }) => {
@@ -463,6 +467,13 @@ export default function Home() {
     else player.unMute?.();
   }, [muted]);
 
+  useEffect(() => {
+    const player = playerRef.current;
+    if (!player) return;
+    if (paused) player.pauseVideo?.();
+    else player.playVideo?.();
+  }, [paused]);
+
   const currentTitle = renderSlot ? VIDEO_TITLES[renderSlot.id] ?? "Unknown clip" : "";
   const showLoadingShop = !isMobilePortrait && !backgroundReady;
 
@@ -479,9 +490,25 @@ export default function Home() {
           <div className="absolute left-[26.82%] top-[calc(15.92%-4.5px)] z-0 h-[52.16%] w-[46.36%]">
             <div className="relative h-full w-full overflow-hidden rounded-[2.5%] bg-black">
               {renderSlot && !isMobilePortrait ? (
-                <div className="h-full w-full overflow-hidden">
-                  <div ref={playerMountRef} className="h-full w-full scale-[1.12] origin-center" />
-                </div>
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setPaused((value) => !value)}
+                    className="absolute inset-0 z-10 cursor-pointer"
+                    aria-label={paused ? "Play video" : "Pause video"}
+                    title={paused ? "Play" : "Pause"}
+                  />
+                  <div className="pointer-events-none h-full w-full overflow-hidden">
+                    <div ref={playerMountRef} className="h-full w-full scale-[1.12] origin-center" />
+                  </div>
+                  {paused && (
+                    <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center bg-black/25">
+                      <div className="rounded-full bg-black/60 px-4 py-2 text-[10px] uppercase tracking-[0.28em] text-[#d7d0bc] backdrop-blur-sm">
+                        Paused
+                      </div>
+                    </div>
+                  )}
+                </>
               ) : null}
 
               {isMobilePortrait && (
