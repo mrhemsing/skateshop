@@ -334,6 +334,7 @@ export default function Home() {
   const [playerNonce, setPlayerNonce] = useState(0);
   const [playerReady, setPlayerReady] = useState(false);
   const [backgroundReady, setBackgroundReady] = useState(false);
+  const [showLoadingShop, setShowLoadingShop] = useState(true);
   const playerMountRef = useRef<HTMLDivElement | null>(null);
   const playerRef = useRef<YouTubePlayer | null>(null);
   const isMobilePortrait = useMobileLandscapeGate();
@@ -384,7 +385,20 @@ export default function Home() {
   const renderSlot = mountedSlot;
 
   useEffect(() => {
+    const resetStartup = () => {
+      setBackgroundReady(false);
+      setPlayerReady(false);
+      setShowLoadingShop(true);
+      window.setTimeout(() => {
+        setShowLoadingShop(false);
+      }, 1200);
+    };
+
+    resetStartup();
+    window.addEventListener("pageshow", resetStartup);
+
     return () => {
+      window.removeEventListener("pageshow", resetStartup);
       playerRef.current?.destroy();
       playerRef.current = null;
     };
@@ -393,6 +407,12 @@ export default function Home() {
   useEffect(() => {
     if (isMobilePortrait) return;
     setBackgroundReady(false);
+    setPlayerReady(false);
+    setShowLoadingShop(true);
+    const timer = window.setTimeout(() => {
+      setShowLoadingShop(false);
+    }, 1200);
+    return () => window.clearTimeout(timer);
   }, [isMobilePortrait, playerNonce]);
 
   useEffect(() => {
@@ -475,7 +495,6 @@ export default function Home() {
   }, [paused]);
 
   const currentTitle = renderSlot ? VIDEO_TITLES[renderSlot.id] ?? "Unknown clip" : "";
-  const showLoadingShop = !isMobilePortrait && !backgroundReady;
 
   return (
     <main className="relative h-screen w-screen overflow-hidden bg-black">
