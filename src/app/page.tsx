@@ -330,9 +330,9 @@ export default function Home() {
   const [hasStarted, setHasStarted] = useState(false);
   const [mountedSlot, setMountedSlot] = useState<{ id: string; index: number; offsetSeconds: number } | null>(null);
   const [muted, setMuted] = useState(true);
-  const [paused, setPaused] = useState(false);
   const [playerNonce, setPlayerNonce] = useState(0);
   const [playerReady, setPlayerReady] = useState(false);
+  const [showStandby, setShowStandby] = useState(true);
   const [backgroundReady, setBackgroundReady] = useState(false);
   const [showLoadingShop, setShowLoadingShop] = useState(true);
   const playerMountRef = useRef<HTMLDivElement | null>(null);
@@ -352,7 +352,7 @@ export default function Home() {
       offsetSeconds: 0,
     });
     setPlayerReady(false);
-    setPaused(false);
+    setShowStandby(true);
     setPlayerNonce((value) => value + 1);
     setHasStarted(true);
   };
@@ -388,6 +388,7 @@ export default function Home() {
     const resetStartup = () => {
       setBackgroundReady(false);
       setPlayerReady(false);
+      setShowStandby(true);
       setShowLoadingShop(true);
       window.setTimeout(() => {
         setShowLoadingShop(false);
@@ -408,6 +409,7 @@ export default function Home() {
     if (isMobilePortrait) return;
     setBackgroundReady(false);
     setPlayerReady(false);
+    setShowStandby(true);
     setShowLoadingShop(true);
     const timer = window.setTimeout(() => {
       setShowLoadingShop(false);
@@ -488,11 +490,12 @@ export default function Home() {
   }, [muted]);
 
   useEffect(() => {
-    const player = playerRef.current;
-    if (!player) return;
-    if (paused) player.pauseVideo?.();
-    else player.playVideo?.();
-  }, [paused]);
+    if (isMobilePortrait) return;
+    const timer = window.setTimeout(() => {
+      setShowStandby(false);
+    }, 3000);
+    return () => window.clearTimeout(timer);
+  }, [isMobilePortrait, playerNonce]);
 
   const currentTitle = renderSlot ? VIDEO_TITLES[renderSlot.id] ?? "Unknown clip" : "";
 
@@ -510,20 +513,23 @@ export default function Home() {
             <div className="relative h-full w-full overflow-hidden rounded-[2.5%] bg-black">
               {renderSlot && !isMobilePortrait ? (
                 <>
-                  <button
-                    type="button"
-                    onClick={() => setPaused((value) => !value)}
-                    className="absolute inset-0 z-10 cursor-pointer"
-                    aria-label={paused ? "Play video" : "Pause video"}
-                    title={paused ? "Play" : "Pause"}
-                  />
                   <div className="pointer-events-none h-full w-full overflow-hidden">
                     <div ref={playerMountRef} className="h-full w-full scale-[1.12] origin-center" />
                   </div>
-                  {paused && (
-                    <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center bg-black/25">
-                      <div className="rounded-full bg-black/60 px-4 py-2 text-[10px] uppercase tracking-[0.28em] text-[#d7d0bc] backdrop-blur-sm">
-                        Paused
+                  {showStandby && !showLoadingShop && (
+                    <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center bg-black">
+                      <div className="relative aspect-[4/3] h-full w-full overflow-hidden bg-[#111]">
+                        <div className="absolute inset-0 opacity-90 [background:linear-gradient(to_right,#c9c9c9_0_14.285%,#caca00_14.285%_28.57%,#21c7cb_28.57%_42.855%,#00d100_42.855%_57.14%,#cb20c8_57.14%_71.425%,#d10000_71.425%_85.71%,#1a12cb_85.71%_100%)]" />
+                        <div className="absolute left-0 right-0 top-[66.5%] h-[8.5%] [background:linear-gradient(to_right,#1520d6_0_14.285%,#111_14.285%_28.57%,#cb20c8_28.57%_42.855%,#111_42.855%_57.14%,#21c7cb_57.14%_71.425%,#111_71.425%_85.71%,#c9c9c9_85.71%_100%)]" />
+                        <div className="absolute bottom-0 left-0 right-0 top-[75%] [background:linear-gradient(to_right,#0b2b63_0_18%,#f3f3f3_18%_36%,#3c0a74_36%_54%,#111_54%_72%,#1a1a1a_72%_84%,#101010_84%_100%)]" />
+                        <div className="absolute bottom-0 right-[7%] top-[75%] w-[18%] [background:linear-gradient(to_right,#0f0f0f_0_38%,#1d1d1d_38%_64%,#111_64%_100%)]" />
+                        <div className="absolute inset-0 opacity-[0.08] mix-blend-screen [background-image:linear-gradient(to_bottom,rgba(255,255,255,0.22)_0,rgba(255,255,255,0.08)_1px,transparent_1px,transparent_5px)] [background-size:100%_5px]" />
+                        <div className="absolute inset-0 animate-[standby-flicker_0.22s_steps(2,end)_infinite] opacity-[0.08] mix-blend-screen [background-image:linear-gradient(to_bottom,rgba(255,255,255,0.18)_0,rgba(255,255,255,0.04)_1px,transparent_1px,transparent_3px)] [background-size:100%_3px]" />
+                        <div className="absolute inset-x-0 top-[-12%] h-[28%] animate-[standby-roll_6s_linear_infinite] bg-[linear-gradient(to_bottom,rgba(255,255,255,0.0),rgba(255,255,255,0.12),rgba(255,255,255,0.0))] opacity-[0.12] mix-blend-screen" />
+                        <div className="absolute inset-0 opacity-[0.06] [background-image:radial-gradient(circle_at_center,rgba(255,255,255,0.6)_0,transparent_55%)]" />
+                        <div className="absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 bg-black px-5 py-2 text-center text-[clamp(0.78rem,1.35vw,1rem)] uppercase tracking-[0.18em] text-white shadow-[0_0_0_1px_rgba(255,255,255,0.06),0_10px_20px_rgba(0,0,0,0.45)]">
+                          PLEASE STAND BY
+                        </div>
                       </div>
                     </div>
                   )}
