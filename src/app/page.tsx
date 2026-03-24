@@ -501,7 +501,7 @@ export default function Home() {
 
   return (
     <main className="relative h-screen w-screen overflow-hidden bg-black">
-      {showLoadingShop && (
+      {showLoadingShop && !isMobilePortrait && (
         <div className="pointer-events-none absolute inset-0 z-40 flex items-center justify-center bg-black/92 text-[clamp(0.6rem,1.9vw,1.3rem)] uppercase tracking-[0.32em] text-[#d7d0bc]">
           LOADING SHOP<span className="ml-1 inline-flex w-[2.4em] justify-start" aria-hidden="true"><span className="animate-pulse [animation-duration:1.2s]">...</span></span>
         </div>
