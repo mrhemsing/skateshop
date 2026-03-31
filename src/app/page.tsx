@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import BAverageBadge from "@/components/BAverageBadge";
 
 type YouTubePlayer = {
   destroy: () => void;
@@ -604,14 +605,14 @@ export default function Home() {
           )}
 
           <div className="fixed bottom-6 left-4 z-[80] md:bottom-6 md:left-6">
-            <a
-              href="https://b-average.com"
-              target="_blank"
-              rel="noreferrer"
-              className="inline-block bg-black px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-white shadow-[0_4px_12px_rgba(0,0,0,0.45)] transition hover:bg-white hover:text-black md:px-2 md:py-1 md:text-xs"
-            >
-              B Average
-            </a>
+            <BAverageBadge
+              variant="black"
+              style={{
+                fontSize: "11px",
+                padding: "6px 12px",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.45)",
+              }}
+            />
           </div>
 
           {hasStarted && !isMobilePortrait && (
