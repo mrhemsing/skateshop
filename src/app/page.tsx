@@ -102,7 +102,6 @@ const YOUTUBE_URLS = [
   "https://www.youtube.com/watch?v=V-eH7mU1sCs",
   "https://www.youtube.com/watch?v=oBNPA96TCRY",
   "https://www.youtube.com/watch?v=1J-LR16FQEU",
-  "https://www.youtube.com/watch?v=rMA1ZsMIkyk",
   "https://www.youtube.com/watch?v=CplDvIFPBOM",
   "https://www.youtube.com/watch?v=hcmy3LIw13E",
   "https://www.youtube.com/watch?v=iZrPLX5RAtk",
