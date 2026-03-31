@@ -1,16 +1,19 @@
 "use client";
 
-import type { CSSProperties } from "react";
+import type { CSSProperties, MouseEvent, AnchorHTMLAttributes } from "react";
 
 const baseStyle: CSSProperties = {
   display: "inline-block",
   fontFamily: "Arial, Helvetica, sans-serif",
-  fontSize: "12px",
+  fontSize: "11px",
   fontWeight: 600,
   letterSpacing: "2.16px",
   textTransform: "uppercase",
   textDecoration: "none",
-  padding: "4px 8px",
+  paddingTop: "4px",
+  paddingBottom: "4px",
+  paddingLeft: "6px",
+  paddingRight: "5px",
   borderRadius: 0,
   lineHeight: 1,
   transition: "background-color 160ms ease, color 160ms ease",
@@ -36,25 +39,23 @@ type Props = {
   children?: string;
   variant?: keyof typeof variants;
   style?: CSSProperties;
-  className?: string;
 };
 
 export default function BAverageBadge({
   href = "https://b-average.com",
   children = "B AVERAGE",
-  variant = "black",
+  variant = "white",
   style = {},
-  className = "",
   ...props
-}: Props & React.AnchorHTMLAttributes<HTMLAnchorElement>) {
-  const chosen = variants[variant] || variants.black;
+}: Props & AnchorHTMLAttributes<HTMLAnchorElement>) {
+  const chosen = variants[variant] || variants.white;
 
-  const handleMouseEnter = (event: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleMouseEnter = (event: MouseEvent<HTMLAnchorElement>) => {
     event.currentTarget.style.backgroundColor = chosen.hoverBackgroundColor;
     event.currentTarget.style.color = chosen.hoverColor;
   };
 
-  const handleMouseLeave = (event: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleMouseLeave = (event: MouseEvent<HTMLAnchorElement>) => {
     event.currentTarget.style.backgroundColor = chosen.backgroundColor;
     event.currentTarget.style.color = chosen.color;
   };
@@ -72,7 +73,6 @@ export default function BAverageBadge({
         color: chosen.color,
         ...style,
       }}
-      className={className}
       {...props}
     >
       {children}
