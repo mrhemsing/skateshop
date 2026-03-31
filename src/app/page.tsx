@@ -592,6 +592,17 @@ export default function Home() {
             </div>
           )}
 
+          <div className="absolute bottom-4 left-4 z-30 md:bottom-6 md:left-6">
+            <a
+              href="https://b-average.com"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-block bg-black px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-white hover:text-black md:text-xs"
+            >
+              B Average
+            </a>
+          </div>
+
           {hasStarted && !isMobilePortrait && (
             <button
               type="button"
