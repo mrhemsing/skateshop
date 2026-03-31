@@ -584,7 +584,7 @@ export default function Home() {
                 className="bg-black leading-none tracking-[0.06em] uppercase"
                 style={{
                   padding: "0 1px",
-                  fontSize: isMobile ? "calc(1.18cqw + 2px)" : "1.18cqw",
+                  fontSize: isMobilePortrait ? "1.18cqw" : "calc(1.18cqw + 2px)",
                 }}
               >
                 {currentTitle}
