@@ -592,7 +592,7 @@ export default function Home() {
             </div>
           )}
 
-          <div className="absolute bottom-4 left-4 z-30 md:bottom-6 md:left-6">
+          <div className="absolute bottom-4 left-4 z-40 md:bottom-6 md:left-6">
             <a
               href="https://b-average.com"
               target="_blank"
