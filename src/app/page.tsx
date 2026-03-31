@@ -505,12 +505,12 @@ export default function Home() {
         </div>
       )}
 
-      <div className="fixed bottom-3 left-4 z-[120] md:bottom-6 md:left-6">
+      <div className="fixed bottom-1 left-4 z-[120] md:bottom-6 md:left-6">
         <a
           href="https://b-average.com"
           target="_blank"
           rel="noreferrer"
-          className="inline-block bg-black px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-white shadow-[0_4px_12px_rgba(0,0,0,0.45)] transition hover:bg-white hover:text-black md:px-2 md:py-1 md:text-xs"
+          className="inline-block bg-black px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-white shadow-[0_4px_12px_rgba(0,0,0,0.45)] transition hover:bg-white hover:text-black md:px-2 md:py-1 md:text-xs"
         >
           B Average
         </a>
