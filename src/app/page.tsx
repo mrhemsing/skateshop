@@ -507,7 +507,7 @@ export default function Home() {
 
       <div className="fixed bottom-6 left-4 z-[120] md:bottom-6 md:left-6">
         <BAverageBadge
-          variant="white"
+          variant={isMobilePortrait ? "black" : "white"}
           style={{
             boxShadow: "0 4px 12px rgba(0,0,0,0.45)",
           }}
