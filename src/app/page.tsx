@@ -596,8 +596,6 @@ export default function Home() {
             <BAverageBadge
               variant="white"
               style={{
-                fontSize: "11px",
-                padding: "6px 12px",
                 boxShadow: "0 4px 12px rgba(0,0,0,0.45)",
               }}
             />
