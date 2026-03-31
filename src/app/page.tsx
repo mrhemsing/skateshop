@@ -580,7 +580,13 @@ export default function Home() {
               className="pointer-events-none absolute left-1/2 top-[80.0%] z-20 -translate-x-1/2 text-center text-[#d7d0bc] drop-shadow-[0_2px_8px_rgba(0,0,0,0.85)]"
               style={{ fontFamily: "ImpactLabelReversed, Arial Black, sans-serif" }}
             >
-              <div className="bg-black leading-none tracking-[0.06em] uppercase" style={{ padding: "0 1px", fontSize: "1.18cqw" }}>
+              <div
+                className="bg-black leading-none tracking-[0.06em] uppercase"
+                style={{
+                  padding: "0 1px",
+                  fontSize: isMobile ? "calc(1.18cqw + 2px)" : "1.18cqw",
+                }}
+              >
                 {currentTitle}
               </div>
             </div>
