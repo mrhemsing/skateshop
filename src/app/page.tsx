@@ -605,7 +605,7 @@ export default function Home() {
 
           <div className="fixed bottom-6 left-4 z-[80] md:bottom-6 md:left-6">
             <BAverageBadge
-              variant="black"
+              variant="white"
               style={{
                 fontSize: "11px",
                 padding: "6px 12px",
