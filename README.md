@@ -52,28 +52,53 @@ Current video list in channel order:
 33. `411VM - #34 (1999)`
 34. `411VM - #35 (1999)`
 35. `411VM - #36 (1999)`
-36. `Toy Machine - Welcome To Hell (1996)`
+36. `Toy Machine – Welcome to Hell (1996)`
 37. `411 VM: Europe (1999)`
-38. `XYZ Presents Stars and Bars (1995)`
+38. `XYZ – Stars and Bars (1995)`
 39. `World Industries / Blind / 101 – Trilogy (1996)`
-40. `Transworld - Uno (1996)`
-41. `Transworld - Anthology (2000)`
-42. `Girl - Mouse (1996)`
-43. `Underachievers: Eastern Exposure 3 (1996)`
-44. `Shorty's - Fulfill the Dream`
-45. `TSA - "Life In The Fast Lane" (1997)`
-46. `Blind - Video Days`
-47. `Plan B - "Questionable" (1992)`
-48. `Plan B - Virtual Reality`
-49. `Zero - Thrill of It All`
-50. `Transworld - The Reason (1999)`
-51. `Alien Workshop - Memory Screen`
-52. `Zoo York Mixtape - The Original`
-53. `Foundation - Art Bars, Subtitles and Seagulls (2001)`
-54. `Think - "Damage" (1996)`
-55. `Birdhouse - "The End" (1998)`
-56. `Chocolate - "Las Nueve Vidas De Paco" (1995)`
-57. `FTC - "Penal Code 100A" (1996)`
+40. `Transworld – Uno (1996)`
+41. `Girl – Mouse (1996)`
+42. `Underachievers: Eastern Exposure 3 (1996)`
+43. `Shorty's – Fulfill the Dream (1998)`
+44. `TSA – Life in the Fast Lane (1997)`
+45. `Blind – Video Days (1991)`
+46. `Plan B – Questionable (1992)`
+47. `Plan B – Virtual Reality (1993)`
+48. `Zero – Thrill of It All (1997)`
+49. `Transworld – The Reason (1999)`
+50. `Alien Workshop – Memory Screen (1991)`
+51. `Zoo York – The Mixtape (1997)`
+52. `Think – Damage (1996)`
+53. `Birdhouse – The End (1998)`
+54. `Chocolate – Las Nueve Vidas de Paco (1995)`
+55. `FTC – Penal Code 100A (1996)`
+56. `New Deal – Promo Ninety Six (1996)`
+57. `New Deal – Whatever (1993)`
+58. `Planet Earth – Hiatus (1995)`
+59. `Alien Workshop – Timecode (1997)`
+60. `Plan B – Second Hand Smoke (1994)`
+61. `New Deal – Children of the Sun (1994)`
+62. `Osiris – The Storm (1999)`
+63. `Girl – Goldfish (1993)`
+64. `Stereo – Tincan Folklore (1996)`
+65. `Rodney Mullen vs. Daewon Song (1997)`
+66. `Zero – Misled Youth (1999)`
+67. `Toy Machine – Jump Off a Building (1998)`
+68. `World Industries – 20 Shot Sequence (1995)`
+69. `Blind – Tim & Henry's Pack of Lies (1992)`
+70. `Chocolate – The Chocolate Tour (1999)`
+71. `Element – Fine Artists Vol. 1 (1994)`
+72. `Birdhouse – Ravers (1993)`
+73. `Birdhouse – Feasters (1992)`
+74. `101 – Falling Down (1993)`
+75. `Zoo York – Peep This (1999)`
+76. `5boro – Fire It Up (1999)`
+77. `Eastern Exposure 2 – Dan Wolfe (1994)`
+78. `FTC – Finally (1993)`
+79. `Mad Circle – 5ive Flavors (1998)`
+80. `Emerica – Yellow (1997)`
+81. `Consolidated – Kings of Promotion (1997)`
+82. `Think – Dedication (1998)`
 
 ## Notes
 
